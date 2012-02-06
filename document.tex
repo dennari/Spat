@@ -1,0 +1,218 @@
+\documentclass[12pt,a4paper,oneside,article]{memoir}
+
+
+
+% LAYOUT
+\usepackage{changepage}
+\setulmarginsandblock{0.7\uppermargin}{0.8\lowermargin}{*}
+
+% MATHS
+\usepackage{amsmath,amsfonts,amssymb,amsbsy,commath,mathtools,calc}
+\mathtoolsset{showonlyrefs,showmanualtags}
+
+\usepackage{subfig}
+% FONTS & LANGUAGE
+\usepackage[usenames,dvipsnames]{color}
+\definecolor{light-gray}{gray}{0.8}
+\usepackage{fontspec,xltxtra,polyglossia}
+\setmainlanguage{english}
+\usepackage[normalem]{ulem} % have underlinings work
+%\defaultfontfeatures{Ligatures=TeX}
+\defaultfontfeatures{Mapping=tex-text}
+
+\setmainfont[Ligatures={Common}, Numbers={OldStyle}]{Linux Libertine O}
+%\setmainfont{Droid Sans}
+%\setsansfont[Scale=MatchLowercase]{Inconsolata}
+\setmonofont[Scale=0.8]{DejaVu Sans Mono}
+
+% PDF SETUP
+\usepackage[unicode,bookmarks, colorlinks, breaklinks,
+pdftitle={T-61.3040: Ex 9},
+pdfauthor={Ville Väänänen},
+pdfproducer={xetex}
+]{hyperref}
+\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=MidnightBlue} 
+
+\usepackage[backref=true, backend=biber]{biblatex}
+\addbibresource{bibliography.bib}
+
+% TABLES
+\usepackage{booktabs}
+\usepackage{topcapt} 
+\usepackage{rccol}
+\usepackage{tabularx} % requires array
+\newcommand{\otoprule}{\midrule[\heavyrulewidth]}
+\newcolumntype{d}[2]{R[.][.]{#1}{#2}}
+
+\usepackage{titlesec}
+\usepackage{todonotes}
+
+%%%%%%%% OMAT KOMENNOT %%%%%%%%%%%%
+
+\usepackage{mymath}
+\usepackage{mylayout}
+
+
+% PARAGRAPHS
+%\usepackage{parskip}
+
+% kuvat
+
+\usepackage{listings}
+\usepackage{mcode}
+\lstset{ %
+	%language=Matlab,                % choose the language of the code
+	basicstyle=\footnotesize\ttfamily,% the size of the fonts that are used for the code 
+	numbers=none,                   % where to put the line-numbers
+	numberstyle=\footnotesize\ttfamily,      % the size of the fonts that are usedfor the line-numbers 
+	stepnumber=5,                   % the step between two line-numbers. If it's 1 each line 
+	aboveskip=2\medskipamount,
+	belowskip=2\medskipamount,                                % will be numbered
+	numbersep=-5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	frame=l,
+	framesep=0pt,
+	framexleftmargin=2mm,
+	rulecolor=\color{light-gray},	                % adds a frame around the code
+	tabsize=2,	                % sets default tabsize to 2 spaces
+	caption=,
+	captionpos=t,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+	emptylines=*1,
+	%title=\lstname,                 % show the filename of files included with
+	                                % also try caption instead of title
+	escapeinside={\%*}{*)},         % if you want to add a comment within your code
+            % if you want to add more keywords to the set
+}
+ 
+\newcommand{\course}{S-114.4202}
+\newcommand{\coursename}{Special Course in Computational Engineering II}
+\newcommand{\duedate}{\today}
+\newcommand{\studentid}{63527M}
+\renewcommand{\title}{Lansing woods}
+\author{Ville Väänänen}
+
+\setsecnumdepth{subsubsection}
+\counterwithout{section}{chapter}
+\pagestyle{plain}
+\makeevenhead{headings}{\course}{\Large\title}{\author / \studentid}
+\makeoddhead{headings}{\course}{\Large\title}{\author / \studentid}
+\makeheadrule{headings}{\textwidth}{\normalrulethickness}
+\makeheadposition{headings}{flushleft}{flushleft}{flushleft}{flushleft}
+\checkandfixthelayout
+%\renewcommand{\thesubsubsection}{\thesubsection{\large\scshape\alph{subsubsection}}}
+\newfontfamily\subsubsectionfont[Letters=SmallCaps]{Linux Libertine O}
+%\titleformat{\subsection}{\large\scshape}{\alph{subsection} )}{10pt}{}
+%\titleformat{\section}{\Huge}{Round \thesection}{10pt}{}
+%\titleformat{\section}{\Large}{Exercise \thesection}{10pt}{}
+
+\everymath{\displaystyle}
+\begin{document}
+\begin{titlingpage}
+	\begin{center}
+	\begin{minipage}{\textwidth}
+	\begin{flushright} \large
+	Ville \textsc{Väänänen}\\
+	\studentid
+	\end{flushright}
+	\end{minipage}
+	
+	\vspace{8.0cm}
+	\textsc{\LARGE \title}
+	\HRule \\[0.19cm]
+	{\large \course\: \coursename}
+	
+	
+	\vfill
+	\today
+	\end{center}
+\end{titlingpage}
+\clearpage
+
+\section{Data description}
+It's an important question in forest ecology wether
+certain tree species are spatially associated with each other
+and how they respond to competition.
+The Lansing Woods dataset \cite{lansing} contains the location and 
+botanical classification of $2251$ trees. The data
+was collected in Lansing Woods, Clinton County, Michigan USA by D.J.
+Gerrard in 1969 from a square area of $282\times282$ metres.
+
+The dataset is available in the \emph{R} package \emph{spatstat} \cite{R,spatstat}.
+It's a categorically marked dataset, where the mark can have one of the values
+
+\begin{itemize}
+  \item blackoak
+  	\begin{itemize}
+  	  \item \emph{Quercus velutina}
+  	  \item known associates: whiteoak, redoak, hickory, maple
+  	\end{itemize} 
+  \item redoak
+   \begin{itemize}
+  	  \item \emph{Quercus rubra}
+  	  \item known associates: whiteoak, blackoak
+  	\end{itemize}  
+  \item whiteoak
+   \begin{itemize}
+  	  \item \emph{Quercus alba}
+  	  \item known associates: whiteoak, redoak
+  	\end{itemize}    
+  \item hickory
+   \begin{itemize}
+  	  \item \emph{Carya}
+  	  \item known associates: \todo[fancyline]{Look it up} 
+  	\end{itemize}  
+  \item maple
+   \begin{itemize}
+  	  \item \emph{Acer}
+  	  \item known associates: \todo[fancyline]{Look it up}
+  	\end{itemize}  
+  \item misc \todo[fancyline]{find the original article}
+\end{itemize}  
+
+The interesting questions will be:
+\begin{itemize}
+  \item do the associations known \emph{a priori} show in the data
+  \item do some species avoid some other species
+  \item clustering behavior inside and between the species
+\end{itemize}
+The dataset is plotted in figure~\ref{fig:lansing_separate}. 
+
+
+\placefig[p]{lansing_separate}{0.95}{The Lansing woods dataset plotted
+by separating the data by the marks (species)}
+\placefig[p]{lansing_intensity_separate}{0.95}{Independent smoothed intensity estimates}
+\placefig[p]{lansing_intensity_relative}{0.95}{Smoothed intensity estimates
+across all species}
+
+\section{Intensity analysis}
+It's obvious just by looking at figure~\ref{fig:lansing_intensity_separate} that 
+the intensity profiles exhibit significant interspecies variability. For exampe
+whiteoak seems to have almost homogenous intensity whereas maple
+displays a much more inhomogenous pattern. Gaussian kernel smoothed
+intensity estimates, separately estimated for each species, is displayed in  
+figure~\ref{fig:lansing_intensity_separate}. Another Gaussian kernel smoothed
+ intensity estimate is displayed in figure~\ref{fig:lansing_intensity_relative},
+ but in this version the intensities are directly comparable between the species.
+
+
+
+\section{Methods}
+
+\section{Results}
+
+\section{Conclusion}
+
+
+\printbibliography
+\appendix
+\section{R code}
+
+%\lstinputlisting[caption={m-code in exercise 1},linerange=1-132]{ex1.m}
+%\lstinputlisting[caption={m-code in exercise 2},linerange=1-81]{ex2.m}
+
+\end{document}
