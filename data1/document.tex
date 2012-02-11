@@ -185,21 +185,129 @@ The dataset is plotted in figure~\ref{fig:lansing_separate}.
 
 \placefig[p]{lansing_separate}{0.95}{The Lansing woods dataset plotted
 by separating the data by the marks (species)}
-\placefig[p]{lansing_intensity_separate}{0.95}{Independent smoothed intensity estimates}
-\placefig[p]{lansing_intensity_relative}{0.95}{Smoothed intensity estimates
-across all species}
+
+ \section{Preprocessing}
+
+The different oaks, namely the black, the white and the redoaks seem to
+display rather homogenous intensities judging from the point patterns.
+Taking into account the prior information, that these oaks tend associate
+with each other, it seems reasonable to combine the different oaks into
+a single category. Also since there is no information regarding the constitution
+of the ``misc'' category, it is discarded from further analysis. The point patterns
+resulting from these preprocessing steps are displayed in figure~\ref{fig:lansing_processed}. 
+
+\begin{figure}[htb]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Maples]{\label{fig:maple}\includegraphics[width=0.65\textwidth]{lansing_maple}}
+	  \subfloat[Hickories]{\label{fig:hickory}\includegraphics[width=0.65\textwidth]{lansing_hickory}}\\
+	  \subfloat[Oaks]{\label{fig:oak}\includegraphics[width=0.65\textwidth]{lansing_oak}}
+  \end{adjustwidth}
+  \caption{The dataset after preprocessing}
+  \label{fig:lansing_processed}
+\end{figure}
+
 
 \section{Intensity analysis}
-It's obvious just by looking at figure~\ref{fig:lansing_intensity_separate} that 
-the intensity profiles exhibit significant interspecies variability. For exampe
-whiteoak seems to have almost homogenous intensity whereas maple
-displays a much more inhomogenous pattern. Gaussian kernel smoothed
-intensity estimates, separately estimated for each species, is displayed in  
-figure~\ref{fig:lansing_intensity_separate}. Another Gaussian kernel smoothed
- intensity estimate is displayed in figure~\ref{fig:lansing_intensity_relative},
- but in this version the intensities are directly comparable between the species.
+
+It's obvious just by looking at figure~\ref{fig:lansing_separate} that 
+the intensity profiles exhibit significant interspecies variability. For example
+oaks seems to have almost homogenous intensity whereas maples
+displays a much more inhomogenous pattern. A Gaussian kernel smoothed intensity 
+estimate is displayed in figure~\ref{fig:intensity_relative}, where
+the intensities are comparable between species. 
+
+The most striking conclusion from figure~\ref{fig:intensity_relative} is that
+the patterns for hickories and maples are almost complementary. The intensity
+of the oaks varies somewhat, but it seems that there are some oaks pretty
+much everywhere in the window.
+
+More conclusions can be drawn by plotting some combined point patterns. In 
+figure~\ref{fig:combined_intensities} there are all the trees plotted together, then
+the oaks and finally the maples and the hickories combined. Indeed, it seems
+that when plotted in these combinations, it would be reasonable to assume
+constant intensities. We can already come to the following
+conclusions
+\begin{itemize}
+  \item discarding the marks, the intensity of trees is homogenous
+  \item oaks are independent of other species
+  \item hickories and maples show strong segregation
+\end{itemize}
+
+\begin{figure}[htb]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Maples]{\label{fig:int_maple}\includegraphics[width=0.65\textwidth]{intensity_relative_maple}}
+	  \subfloat[Hickories]{\label{fig:int_hickory}\includegraphics[width=0.65\textwidth]{intensity_relative_hickory}}\\
+	  \subfloat[Oaks]{\label{fig:int_oak}\includegraphics[width=0.65\textwidth]{intensity_relative_oak}}
+  \end{adjustwidth}
+  \caption{Gaussian Kernel smoothed intensity estimates}
+  \label{fig:intensity_relative}
+\end{figure}
 
 
+
+\begin{figure}[htb]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[All trees]{\label{fig:all_combined}\includegraphics[width=0.65\textwidth]{lansing_combined}}
+	  \subfloat[Oaks]{\label{fig:oaks_combined}\includegraphics[width=0.65\textwidth]{lansing_oaks_combined}}\\
+	  \subfloat[Hickories \& Maples]{\label{fig:hm_combined}\includegraphics[width=0.65\textwidth]{lansing_hm_combined}}
+  \end{adjustwidth}
+  \caption{Point patterns with different combinations of the marks in the dataset. The patterns display homogenous intensity.}
+  \label{fig:combined_intensities}
+\end{figure}
+
+
+
+
+\section{Interaction analysis}
+
+Next we will attempt to characterize the interactions within a single species
+and amongst different species.
+
+\subsection{Intra-species interaction}
+
+I have plotted the inhomogenous L-functions for the maples
+and hickories and the ordinary L-function for the oaks.
+These are displayed in figure~\ref{fig:intra_interactions}.
+
+
+
+\begin{figure}[htb]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Maples]{\label{fig:l_maple}\includegraphics[width=0.45\textwidth]{l_maple}}
+	  \subfloat[Hickories]{\label{fig:l_hickory}\includegraphics[width=0.45\textwidth]{l_hickory}}
+	  \subfloat[Oaks]{\label{fig:l_oak}\includegraphics[width=0.45\textwidth]{l_oak}}
+  \end{adjustwidth}
+  \caption{Besag's L-function for the different species. For maples and hickories the inhomogenous version was used. In all of the
+  figures there are the envelopes after $20$ monte carlo tests assuming complete spatial randomness.}
+  \label{fig:intra_interactions}
+\end{figure}
+
+\subsection{Inter-species interaction}
+
+The interspecies interaction was quantified by using the two
+different summary statistics: the \emph{partial pair correlation function} (PPCF)
+and the \emph{mark connection function}. These can both be interpreted
+as displaying the probability, that there is a point of species $i$
+an $r$ distance away from a point of species $j$. The plots have been made
+for all the pairings $i,j$ from the three species, resulting
+in $6$ different plots (pairings of type $i,i$ are also included).
+The PPCF is displayed in figure~\ref{fig:pcf} and the mark-connection function
+in figure~\ref{fig:markc}. As can be seen, both of them show quite similar
+results.
+
+
+\begin{figure}[htb]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Mark-connection function]{\label{fig:markc}\includegraphics[width=0.7\textwidth]{markc}}
+	  \subfloat[PPCF]{\label{fig:pcf}\includegraphics[width=0.7\textwidth]{pcf}}
+  \end{adjustwidth}
+  \caption{The mark-connection function and the partial pair-correlation function that measure intra- and interspecies interactions.}
+\end{figure}
 
 \section{Methods}
 
