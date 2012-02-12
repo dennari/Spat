@@ -34,7 +34,7 @@ pdfproducer={xetex}
 \hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=MidnightBlue} 
 
 \usepackage[backref=true, backend=biber]{biblatex}
-\addbibresource{bibliography.bib}
+\addbibresource{../bibliography.bib}
 
 % TABLES
 \usepackage{booktabs}
@@ -59,9 +59,8 @@ pdfproducer={xetex}
 % kuvat
 
 \usepackage{listings}
-\usepackage{mcode}
 \lstset{ %
-	%language=Matlab,                % choose the language of the code
+	language=R,                % choose the language of the code
 	basicstyle=\footnotesize\ttfamily,% the size of the fonts that are used for the code 
 	numbers=none,                   % where to put the line-numbers
 	numberstyle=\footnotesize\ttfamily,      % the size of the fonts that are usedfor the line-numbers 
@@ -83,6 +82,9 @@ pdfproducer={xetex}
 	breaklines=true,                % sets automatic line breaking
 	breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
 	emptylines=*1,
+	keywordstyle=\color[rgb]{0,0,1},          % keywords in blue
+    commentstyle=\color[gray]{.5}\itshape,               % comments
+    stringstyle=\color[rgb]{.627,.126,.941},   % strings in purple
 	%title=\lstname,                 % show the filename of files included with
 	                                % also try caption instead of title
 	escapeinside={\%*}{*)},         % if you want to add a comment within your code
@@ -183,8 +185,19 @@ The interesting questions will be:
 The dataset is plotted in figure~\ref{fig:lansing_separate}. 
 
 
-\placefig[p]{lansing_separate}{0.95}{The Lansing woods dataset plotted
-by separating the data by the marks (species)}
+\begin{figure}[htb]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Blackoak]{\label{fig:blackoak}\includegraphics[width=0.4\textwidth]{lansing_blackoak}}
+	  \subfloat[Redoak]{\label{fig:redoak}\includegraphics[width=0.4\textwidth]{lansing_redoak}}
+	  \subfloat[Whiteoak]{\label{fig:whiteoak}\includegraphics[width=0.4\textwidth]{lansing_whiteoak}}\\
+	  \subfloat[Maple]{\label{fig:maple}\includegraphics[width=0.4\textwidth]{lansing_maple}}
+	  \subfloat[Hickory]{\label{fig:hickory}\includegraphics[width=0.4\textwidth]{lansing_hickory}}
+	  \subfloat[Misc]{\label{fig:misc}\includegraphics[width=0.4\textwidth]{lansing_misc}}
+  \end{adjustwidth}
+  \caption{The Lansing Woods dataset}
+  \label{fig:lansing_separate}
+\end{figure}
 
  \section{Preprocessing}
 
@@ -199,9 +212,9 @@ resulting from these preprocessing steps are displayed in figure~\ref{fig:lansin
 \begin{figure}[htb]
   \begin{adjustwidth}{-2in}{-2in}
 	  \centering
-	  \subfloat[Maples]{\label{fig:maple}\includegraphics[width=0.65\textwidth]{lansing_maple}}
-	  \subfloat[Hickories]{\label{fig:hickory}\includegraphics[width=0.65\textwidth]{lansing_hickory}}\\
-	  \subfloat[Oaks]{\label{fig:oak}\includegraphics[width=0.65\textwidth]{lansing_oak}}
+	  \subfloat[Maples]{\label{fig:maple}\includegraphics[width=0.4\textwidth]{lansing_maple}}
+	  \subfloat[Hickories]{\label{fig:hickory}\includegraphics[width=0.4\textwidth]{lansing_hickory}}
+	  \subfloat[Oaks]{\label{fig:oak}\includegraphics[width=0.4\textwidth]{lansing_oaks_combined}}
   \end{adjustwidth}
   \caption{The dataset after preprocessing}
   \label{fig:lansing_processed}
@@ -237,9 +250,9 @@ conclusions
 \begin{figure}[htb]
   \begin{adjustwidth}{-2in}{-2in}
 	  \centering
-	  \subfloat[Maples]{\label{fig:int_maple}\includegraphics[width=0.65\textwidth]{intensity_relative_maple}}
-	  \subfloat[Hickories]{\label{fig:int_hickory}\includegraphics[width=0.65\textwidth]{intensity_relative_hickory}}\\
-	  \subfloat[Oaks]{\label{fig:int_oak}\includegraphics[width=0.65\textwidth]{intensity_relative_oak}}
+	  \subfloat[Maples]{\label{fig:int_maple}\includegraphics[width=0.4\textwidth]{intensity_relative_maple}}
+	  \subfloat[Hickories]{\label{fig:int_hickory}\includegraphics[width=0.4\textwidth]{intensity_relative_hickory}}
+	  \subfloat[Oaks]{\label{fig:int_oak}\includegraphics[width=0.4\textwidth]{intensity_relative_oak}}
   \end{adjustwidth}
   \caption{Gaussian Kernel smoothed intensity estimates}
   \label{fig:intensity_relative}
@@ -250,14 +263,15 @@ conclusions
 \begin{figure}[htb]
   \begin{adjustwidth}{-2in}{-2in}
 	  \centering
-	  \subfloat[All trees]{\label{fig:all_combined}\includegraphics[width=0.65\textwidth]{lansing_combined}}
-	  \subfloat[Oaks]{\label{fig:oaks_combined}\includegraphics[width=0.65\textwidth]{lansing_oaks_combined}}\\
-	  \subfloat[Hickories \& Maples]{\label{fig:hm_combined}\includegraphics[width=0.65\textwidth]{lansing_hm_combined}}
+	  \subfloat[All trees]{\label{fig:all_combined}\includegraphics[width=0.4\textwidth]{lansing_all_combined}}
+	  \subfloat[Oaks]{\label{fig:oaks_combined}\includegraphics[width=0.4\textwidth]{lansing_oaks_combined}}
+	  \subfloat[Hickories \& Maples]{\label{fig:hm_combined}\includegraphics[width=0.4\textwidth]{lansing_hm_combined}}
   \end{adjustwidth}
   \caption{Point patterns with different combinations of the marks in the dataset. The patterns display homogenous intensity.}
   \label{fig:combined_intensities}
 \end{figure}
 
+\section{Marking model}
 
 
 
@@ -268,7 +282,7 @@ and amongst different species.
 
 \subsection{Intra-species interaction}
 
-I have plotted the inhomogenous L-functions for the maples
+I have plotted the inhomogenous L-functions \cite{illian}\cite{gelfand} for the maples
 and hickories and the ordinary L-function for the oaks.
 These are displayed in figure~\ref{fig:intra_interactions}.
 
@@ -277,14 +291,17 @@ These are displayed in figure~\ref{fig:intra_interactions}.
 \begin{figure}[htb]
   \begin{adjustwidth}{-2in}{-2in}
 	  \centering
-	  \subfloat[Maples]{\label{fig:l_maple}\includegraphics[width=0.45\textwidth]{l_maple}}
-	  \subfloat[Hickories]{\label{fig:l_hickory}\includegraphics[width=0.45\textwidth]{l_hickory}}
-	  \subfloat[Oaks]{\label{fig:l_oak}\includegraphics[width=0.45\textwidth]{l_oak}}
+	  \subfloat[Maples]{\label{fig:l_maple}\includegraphics[width=0.4\textwidth]{l_maple}}
+	  \subfloat[Hickories]{\label{fig:l_hickory}\includegraphics[width=0.4\textwidth]{l_hickory}}
+	  \subfloat[Oaks]{\label{fig:l_oak}\includegraphics[width=0.4\textwidth]{l_oak}}\\
+	  \subfloat[Hickories \& Maples]{\label{fig:l_hm}\includegraphics[width=0.4\textwidth]{l_hm}}
+	  \subfloat[All trees]{\label{fig:l_all}\includegraphics[width=0.4\textwidth]{l_all}}
   \end{adjustwidth}
   \caption{Besag's L-function for the different species. For maples and hickories the inhomogenous version was used. In all of the
   figures there are the envelopes after $20$ monte carlo tests assuming complete spatial randomness.}
   \label{fig:intra_interactions}
 \end{figure}
+
 
 \subsection{Inter-species interaction}
 
@@ -309,6 +326,8 @@ results.
   \caption{The mark-connection function and the partial pair-correlation function that measure intra- and interspecies interactions.}
 \end{figure}
 
+\clearpage
+
 \section{Methods}
 
 \section{Results}
@@ -317,10 +336,10 @@ results.
 
 
 \printbibliography
+\clearpage
 \appendix
-\section{R code}
+\section*{R code}
 
-%\lstinputlisting[caption={m-code in exercise 1},linerange=1-132]{ex1.m}
-%\lstinputlisting[caption={m-code in exercise 2},linerange=1-81]{ex2.m}
+\lstinputlisting{lansing.R}
 
 \end{document}
