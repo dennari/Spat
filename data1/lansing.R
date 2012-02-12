@@ -1,7 +1,7 @@
 # Lansing wood data analysis
 
-exportFigs <- 0
-displayFigs <- 1
+exportFigs <- 1
+displayFigs <- 0
 interaction <- 0
 speciesinteraction <- 1
 intensity <- 0
@@ -25,11 +25,14 @@ jet.colors <-
 
 mar_lab <- c(2.5,2.5,1.5,1.0)
 mar_tight <- c(0.1,0.1,0.1,0.1)
-myplot <- function(...,width=6,height=6,mar=mar_lab,file=FALSE,nodevoff=FALSE) {
+myplot <- function(...,width=6,height=6,mar=mar_lab,file=FALSE,nodevoff=FALSE,afterfn=NULL,k=NULL) {
 	if(displayFigs) {
 		quartz()
 		par(mar=mar)
 		p <- plot(...)
+		if(is.function(afterfn)) {
+			afterfn(p,k)
+		}
 		if(!exportFigs) {
 			return(p)
 		}
@@ -38,6 +41,9 @@ myplot <- function(...,width=6,height=6,mar=mar_lab,file=FALSE,nodevoff=FALSE) {
 		pdf(file=file,width=width,height=height)
 		par(mar=mar)
 		p <- plot(...)
+		if(afterfn != NULL) {
+			afterfn(p,k)
+		}
 		if(!nodevoff) {
 			dev.off()
 		}
@@ -46,10 +52,11 @@ myplot <- function(...,width=6,height=6,mar=mar_lab,file=FALSE,nodevoff=FALSE) {
 }
 listplot <- function(k,v,file=FALSE,formula=FALSE,...) {
 	if(formula != FALSE) {
-		return(myplot(v,formula,file=sprintf(file,k),...))
+		p <- myplot(v,formula,file=sprintf(file,k),k=k,...)
 	} else {
-		return(myplot(v,file=sprintf(file,k),...))
+		p <- myplot(v,file=sprintf(file,k),k=k,...)
 	}
+	return(p)
 }
 
 sigma <- bw.relrisk(lansing);
@@ -159,16 +166,64 @@ if(speciesinteraction) {
 	mapply(listplot,fns,Ls,
 		MoreArgs=list(
 			main="",
-			formula=.~r,
+			formula=.-r~r,
 			file="ioc_%s.pdf",
-			legend=TRUE,
+			legend=FALSE,
 			width=3,
 			height=3,
 			mar=c(2.0,0.3,0.1,0.3),
-			yaxt="n"
-		))
+			yaxt="n",
+			afterfn=function(p,k) {
+				legend(
+					'topright',
+					c(k,"theoretical"),
+					col=p$col[1:2],
+					lty=p$lty[1:2],
+					lwd=3
+				)
+			}
+		))	
 
+	# random labeling
+	Ldif <- function(X, ..., i) { 
+		Lidot <- Ldot(X, ..., i = i) 
+		L <- Lest(X, ...)
+		return(eval.fv(Lidot - L))
+	}
 
+	Ls <- mapply(
+			envelope,
+			rep(list(nlansing),length(i)),
+			rep(list(Ldif),length(i)),
+			i=names(split(nlansing)),
+			Yname=names(split(nlansing)),
+			MoreArgs=list(
+				simulate = expression(rlabel(nlansing)),
+				nsim=99,
+				correction="Ripley"
+			),SIMPLIFY=FALSE)	
+	
+	plots <- mapply(listplot,fns,Ls,
+		MoreArgs=list(
+			main="",
+			formula=.~r,
+			file="rl_%s.pdf",
+			legend=FALSE,
+			width=3,
+			height=3,
+			mar=c(2.0,0.3,0.1,0.3),
+			yaxt="n",
+		 	lwd=3,
+			afterfn=function(p,k) {
+				legend(
+					'topright',
+					c(sprintf("Ldiff-%s",k),"theoretical"),
+					col=p$col[1:2],
+					lty=p$lty[1:2],
+					lwd=3
+				)
+			}
+		),SIMPLIFY=FALSE)
 	
 
 	# mark connection functions, pairwise
