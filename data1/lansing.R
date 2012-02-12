@@ -6,6 +6,7 @@ interaction <- 0
 speciesinteraction <- 1
 intensity <- 0
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
+nsim <- 3
 
 require("spatstat");
 require("RColorBrewer")
@@ -124,7 +125,7 @@ if(interaction) {
 	patrns <- c(split(nlansing),list(hm=hm,all=nlansing))
 	Ls <- mapply(envelope,patrns,list(Lest,Linhom,Linhom,Lest,Lest),
 		MoreArgs=list(
-			nsim=99,
+			nsim=nsim,
 			correction="Ripley",
 			normpower=2,
 			sigma=2.5*sigma
@@ -144,6 +145,58 @@ if(interaction) {
 
 if(speciesinteraction) {
 	
+	# CSRI
+	i <- c("hickory","hickory","maple")
+	j <- c("oak","maple","oak")
+	fns <- mapply(function(i,j){
+			return(sprintf("%s_%s",i,j))
+		},i,j,USE.NAMES=FALSE)
+	
+	Ls1 <- envelope(
+			nlansing,
+			Lcross,
+			i=i[1],
+			j=j[1],
+			nsim=nsim,
+			correction="Ripley",
+			savepatterns=TRUE)	
+			
+
+	Ls <- mapply(
+			envelope,
+			rep(list(nlansing),2),
+			rep(list(Lcross),2),
+			i=i[2:3],
+			j=j[2:3],
+			MoreArgs=list(
+				nsim=nsim,
+				simulate=Ls1
+			),SIMPLIFY=FALSE)	
+	csrd <- c(list(Ls1),Ls)
+	
+	csrp <- mapply(listplot,fns,csrd,
+		MoreArgs=list(
+			lwd=2,
+			lty=1,
+			main="",
+			formula=.-r~r,
+			file="csri_%s.pdf",
+			legend=FALSE,
+			width=3,
+			height=3,
+			mar=c(2.0,0.3,0.1,0.3),
+			yaxt="n",
+			afterfn=function(p,k) {
+				legend(
+					'topright',
+					c(k,"theoretical"),
+					col=p$col[1:2],
+					lty=1,
+					lwd=2
+				)
+			}
+		),SIMPLIFY=FALSE)	
+	
 	# independence of components
 	i <- c("hickory","hickory","maple")
 	j <- c("oak","maple","oak")
@@ -151,21 +204,34 @@ if(speciesinteraction) {
 			return(sprintf("%s_%s",i,j))
 		},i,j,USE.NAMES=FALSE)
 	
+	
+	Ls1 <- envelope(
+			nlansing,
+			Lcross,
+			i=i[1],
+			j=j[1],
+			nsim=nsim,
+			correction="Ripley",
+			simulate = expression(rshift(nlansing)),
+			savepatterns=TRUE)	
+
 	Ls <- mapply(
 			envelope,
-			rep(list(nlansing),length(i)),
-			rep(list(Lcross),length(i)),
-			i=i,
-			j=j,
+			rep(list(nlansing),2),
+			rep(list(Lcross),2),
+			i=i[2:3],
+			j=j[2:3],
 			MoreArgs=list(
-				simulate = expression(rshift(nlansing)),
-				nsim=99,
-				correction="Ripley"
+				simulate = Ls1,
+				nsim=nsim
 			),SIMPLIFY=FALSE)	
 	
-	mapply(listplot,fns,Ls,
+	iocd <- c(list(Ls1),Ls)
+
+	iocp <- mapply(listplot,fns,iocd,
 		MoreArgs=list(
-			lwd=3,
+			lwd=2,
+			lty=1,
 			main="",
 			formula=.-r~r,
 			file="ioc_%s.pdf",
@@ -179,11 +245,11 @@ if(speciesinteraction) {
 					'topright',
 					c(k,"theoretical"),
 					col=p$col[1:2],
-					lty=p$lty[1:2],
-					lwd=3
+					lty=1,
+					lwd=2
 				)
 			}
-		))	
+		),SIMPLIFY=FALSE)	
 
 	# random labeling
 	Ldif <- function(X, ..., i) { 
@@ -192,19 +258,28 @@ if(speciesinteraction) {
 		return(eval.fv(Lidot - L))
 	}
 
+	Ls1 <- envelope(
+			nlansing,
+			Ldif,
+			i="hickory",
+			nsim=nsim,
+			correction="Ripley",
+			simulate = expression(rlabel(nlansing)),
+			savepatterns=TRUE)	
+
 	Ls <- mapply(
 			envelope,
 			rep(list(nlansing),length(i)),
 			rep(list(Ldif),length(i)),
-			i=names(split(nlansing)),
-			Yname=names(split(nlansing)),
+			i=c("oak","maple"),
 			MoreArgs=list(
-				simulate = expression(rlabel(nlansing)),
-				nsim=99,
-				correction="Ripley"
-			),SIMPLIFY=FALSE)	
+				simulate = Ls1,
+				nsim=nsim
+			),SIMPLIFY=FALSE)
 	
-	plots <- mapply(listplot,fns,Ls,
+	rld <- c(list(Ls1),Ls)	
+	
+	rlp <- mapply(listplot,fns,rld,
 		MoreArgs=list(
 			main="",
 			formula=.~r,
@@ -214,14 +289,15 @@ if(speciesinteraction) {
 			height=3,
 			mar=c(2.0,0.3,0.1,0.3),
 			yaxt="n",
-		 	lwd=3,
+		 	lwd=2,
+		 	lty=1,
 			afterfn=function(p,k) {
 				legend(
 					'topright',
 					c(sprintf("Ldiff-%s",k),"theoretical"),
 					col=p$col[1:2],
-					lty=p$lty[1:2],
-					lwd=3
+					lty=1,
+					lwd=2
 				)
 			}
 		),SIMPLIFY=FALSE)

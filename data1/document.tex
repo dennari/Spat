@@ -271,10 +271,85 @@ conclusions
   \label{fig:combined_intensities}
 \end{figure}
 
-\section{Marking model}
+\section{Randomization tests}
+
+The homogenous Poisson process is an important null model for point processes, since
+in that case the intensity is constant and the locations of the points are i.i.d given
+the number of points. It is then common to test for deviance of the pattern in question
+to this null model, the model of \emph{complete spatial randomness} (CSR).
+
+A marked point process can depart from complete randomness in multiple ways:
+\begin{itemize}
+  \item random labeling
+  	\begin{itemize}
+  		\item The marks are i.i.d random variables given the locations
+	\end{itemize}
+	\item independence of components
+	\begin{itemize}
+  		\item The points and marks in each \emph{subprocess} or \emph{component}, i.e. the process that consists of the
+  		points having the same categorical marks, exhibit whatever distributional characteristics, but the subprocesses are independent of each
+  		other.
+	\end{itemize}
+	\item complete spatial randomness and independence (CSRI)
+	\begin{itemize}
+  		\item the locations are distributed like in a homogenous Poisson process and the marks
+  		are i.i.d 
+	\end{itemize}
+\end{itemize}
+
+Testing for these different null hypotheses is 
+done by considering the ``cross" versions of the second order summary functions of the process.
+In our case it is quite obvious even without testing, that the
+subprocesses show interaction and the labeling is not random. For the sake
+of completeness, tests were carried for each of the null hypotheses.
+
+In figure~\ref{fig:csri} the CSRI assumption was tested. If the null hypothesis
+was correct, the $L_{ij}$ function should stay between the envelopes obtained
+by simulating a homogenous Poisson process.
+
+The indepence of components null hypothesis can be tested by comparing the empirical
+$L_{ij}$ function to the envelopes obtained by splitting the data into subprocesses by mark,
+and then randomly shifting them independently of each other. This case is presented
+in figure~\ref{fig:ioc}.
+
+Finally the random labeling property can be accounted for by testing for the deviance
+of the one-to-any type L-function from the L-function obtained by discarding the marks.
+These whould be equal under the null hypothesis. The envelopes can be constructed
+by calculating this deviance for datasets obtained by randomly relabeling
+the marked point process. The results are presented in figure~\ref{fig:rl}.
 
 
-
+\begin{figure}[htbp]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Hickory \& Maple]{\label{fig:csri_hm}\includegraphics[width=0.4\textwidth]{csri_hickory_maple}}
+	  \subfloat[Hickory \& Oak]{\label{fig:csri_ho}\includegraphics[width=0.4\textwidth]{csri_hickory_oak}}
+	  \subfloat[Oak \& Maple]{\label{fig:csri_hm}\includegraphics[width=0.4\textwidth]{csri_maple_oak}}
+  \end{adjustwidth}
+  \caption{The empirical differences between the $L_{ij}$ functions from the general L function}
+  \label{fig:csri}
+\end{figure}
+\begin{figure}[htbp]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Hickory \& Maple]{\label{fig:ioc_hm}\includegraphics[width=0.4\textwidth]{ioc_hickory_maple}}
+	  \subfloat[Hickory \& Oak]{\label{fig:ioc_ho}\includegraphics[width=0.4\textwidth]{ioc_hickory_oak}}
+	  \subfloat[Oak \& Maple]{\label{fig:ioc_hm}\includegraphics[width=0.4\textwidth]{ioc_maple_oak}}
+  \end{adjustwidth}
+  \caption{The empirical $L_{ij}$ functions with envelopes from random shiftings of the subprocesses}
+  \label{fig:ioc}
+\end{figure}
+\begin{figure}[htbp]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Hickory \& Maple]{\label{fig:rl_hm}\includegraphics[width=0.4\textwidth]{rl_hickory_maple}}
+	  \subfloat[Hickory \& Oak]{\label{fig:rl_ho}\includegraphics[width=0.4\textwidth]{rl_hickory_oak}}
+	  \subfloat[Oak \& Maple]{\label{fig:rl_hm}\includegraphics[width=0.4\textwidth]{rl_maple_oak}}
+  \end{adjustwidth}
+  \caption{The empirical differences between the $L_{ij}$ functions from the general L function with envelopes from
+  random labelings of the marked point pattern}
+  \label{fig:rl}
+\end{figure}
 
 \section{Interaction analysis}
 
@@ -331,10 +406,31 @@ results.
 
 \section{Methods}
 
+\subsection{Intensity}
+
+\subsubsection{Kernel smoother}
+
+\subsection{Intra-species interaction}
+
+\subsubsection{K \& L functions}
+
+\subsection{Inter-species interaction}
+
+\subsubsection{$L_{ij}$ function}
+
+\subsubsection{$L_{i\bullet}$ function}
+
+\subsubsection{mark-connection function}
+
 \section{Results}
 
-\section{Conclusion}
+\subsection{Intensity}
 
+\subsection{Intra-species interaction}
+
+\subsection{Inter-species interaction}
+
+\section{Conclusion}
 
 \printbibliography
 \clearpage
