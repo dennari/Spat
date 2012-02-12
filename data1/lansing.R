@@ -41,7 +41,7 @@ myplot <- function(...,width=6,height=6,mar=mar_lab,file=FALSE,nodevoff=FALSE,af
 		pdf(file=file,width=width,height=height)
 		par(mar=mar)
 		p <- plot(...)
-		if(afterfn != NULL) {
+		if(is.function(afterfn)) {
 			afterfn(p,k)
 		}
 		if(!nodevoff) {
@@ -165,6 +165,7 @@ if(speciesinteraction) {
 	
 	mapply(listplot,fns,Ls,
 		MoreArgs=list(
+			lwd=3,
 			main="",
 			formula=.-r~r,
 			file="ioc_%s.pdf",
