@@ -2,9 +2,9 @@
 
 exportFigs <- 1
 displayFigs <- 0
-interaction <- 0
+interaction <- 1
 speciesinteraction <- 1
-intensity <- 0
+intensity <- 1
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
 
 require("spatstat");
@@ -148,7 +148,7 @@ if(speciesinteraction) {
 			i,
 			j,
 			MoreArgs=list(
-				r=seq.int(range[1],range[2],1/500),
+				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 				correction="Ripley",
 				bw=bw,
 				normalise=FALSE
@@ -185,46 +185,6 @@ if(speciesinteraction) {
 	if(exportFigs) {
 		dev.off()
 	}
-
-	# pair correlation functions, pairwise
-	# pcfs <- mapply(
-	# 		pcfcross,
-	# 		list(nlansing,nlansing,nlansing),
-	# 		list("hickory","hickory","maple"),
-	# 		list("oak","maple","oak"),
-	# 		MoreArgs=list(
-	# 			correction="Ripley",
-	# 			bw=bw
-	# 		),SIMPLIFY=FALSE)
-	# pcf <- pcfs[[1]]
-	# for(m in pcfs[2:3]) {
-	# 	pcf <- cbind(pcf,m[,cbind("r","iso")])
-	# }
-
-
-	# vv <- myplot(
-	# 		pcf,
-	# 		legend=FALSE,
-	# 		col=col,
-	# 		lty=1,
-	# 		lwd=2,
-	# 		ylab="pcf",
-	# 		main="",
-	# 		ylim=c(0.4,1.1),
-	# 		xlim=c(0.01,0.23),
-	# 		file="pcf.pdf",nodevoff=TRUE,width=5,
-	# 		height=5)
-
-	# legend('bottomright',
-	# 	c('hickory-oak','hickory-maple','maple-oak','theoretical'),
-	# 	col=col,
-	# 	lwd=2,
-	# 	lty=vv$lty)
-
-	# if(exportFigs) {
-	# 	dev.off()
-	# }
-
 
 }
 
