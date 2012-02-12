@@ -1,10 +1,10 @@
 # Lansing wood data analysis
 
-exportFigs <- 1
-displayFigs <- 0
-interaction <- 1
+exportFigs <- 0
+displayFigs <- 1
+interaction <- 0
 speciesinteraction <- 1
-intensity <- 1
+intensity <- 0
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
 
 require("spatstat");
@@ -132,59 +132,92 @@ if(interaction) {
 			height=3,
 			mar=c(2.0,0.3,0.1,0.3),
 			yaxt="n"
-		))
+		))	
 }
 
 if(speciesinteraction) {
 	
+	# independence of components
+	i <- c("hickory","hickory","maple")
+	j <- c("oak","maple","oak")
+	fns <- mapply(function(i,j){
+			return(sprintf("%s_%s",i,j))
+		},i,j,USE.NAMES=FALSE)
+	
+	Ls <- mapply(
+			envelope,
+			rep(list(nlansing),length(i)),
+			rep(list(Lcross),length(i)),
+			i=i,
+			j=j,
+			MoreArgs=list(
+				simulate = expression(rshift(nlansing)),
+				nsim=99,
+				correction="Ripley"
+			),SIMPLIFY=FALSE)	
+	
+	mapply(listplot,fns,Ls,
+		MoreArgs=list(
+			main="",
+			formula=.~r,
+			file="ioc_%s.pdf",
+			legend=TRUE,
+			width=3,
+			height=3,
+			mar=c(2.0,0.3,0.1,0.3),
+			yaxt="n"
+		))
+
+
+	
 
 	# mark connection functions, pairwise
-	bw <- 2*bw.stoyan(nlansing)
-	i <- c("hickory","hickory","maple","hickory","maple","oak")
-	j <- c("oak","maple","oak","hickory","maple","oak")
-	markcs <- mapply(
-			markconnect,
-			rep(list(nlansing),length(i)),
-			i,
-			j,
-			MoreArgs=list(
-				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
-				correction="Ripley",
-				bw=bw,
-				normalise=FALSE
-			),SIMPLIFY=FALSE)
-	markc <- markcs[[1]]
-	markc <- markc[,c("r","iso")]
-	for(m in markcs[2:length(markcs)]) {
-		markc <- cbind(markc,m[,c("r","iso")])
-	}
-	col <- sapply(brewer.pal(length(markc)-1,"Dark2"),function(c) {
-			return(paste(c,as.hexmode(round(0.7*255)),sep=''))
-		},USE.NAMES=FALSE)
+	# bw <- 2*bw.stoyan(nlansing)
+	# i <- c("hickory","hickory","maple","hickory","maple","oak")
+	# j <- c("oak","maple","oak","hickory","maple","oak")
+	# markcs <- mapply(
+	# 		markconnect,
+	# 		rep(list(nlansing),length(i)),
+	# 		i,
+	# 		j,
+	# 		MoreArgs=list(
+	# 			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
+	# 			correction="Ripley",
+	# 			bw=bw,
+	# 			normalise=FALSE
+	# 		),SIMPLIFY=FALSE)
+	# markc <- markcs[[1]]
+	# markc <- markc[,c("r","iso")]
+	# for(m in markcs[2:length(markcs)]) {
+	# 	markc <- cbind(markc,m[,c("r","iso")])
+	# }
+	# col <- sapply(brewer.pal(length(markc)-1,"Dark2"),function(c) {
+	# 		return(paste(c,as.hexmode(round(0.7*255)),sep=''))
+	# 	},USE.NAMES=FALSE)
 
-	v <- myplot(
-			markc,
-			legend=FALSE,
-			col=col,
-			lty=1,
-			lwd=4,
-			ylab="mark-connection",
-			main="",
-			file="markc.pdf",nodevoff=TRUE,
-			xlim=c(range[1],range[2]),
-			ylim=c(0,0.3),
-			width=5,
-			height=5)
-	legend('topright',
-		mapply(function(i,j){
-			return(sprintf("%s-%s",i,j))
-		},rev(i),rev(j)),
-		col=col,
-		lwd=4,
-		lty=v$lty)
-	if(exportFigs) {
-		dev.off()
-	}
+	# v <- myplot(
+	# 		markc,
+	# 		legend=FALSE,
+	# 		col=col,
+	# 		lty=1,
+	# 		lwd=4,
+	# 		ylab="mark-connection",
+	# 		main="",
+	# 		file="markc.pdf",nodevoff=TRUE,
+	# 		xlim=c(range[1],range[2]),
+	# 		ylim=c(0,0.3),
+	# 		width=5,
+	# 		height=5)
+	# legend('topright',
+	# 	mapply(function(i,j){
+	# 		return(sprintf("%s-%s",i,j))
+	# 	},rev(i),rev(j)),
+	# 	col=col,
+	# 	lwd=4,
+	# 	lty=v$lty)
+	# if(exportFigs) {
+	# 	dev.off()
+	# }
 
 }
 
