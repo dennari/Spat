@@ -220,8 +220,156 @@ resulting from these preprocessing steps are displayed in figure~\ref{fig:lansin
   \label{fig:lansing_processed}
 \end{figure}
 
+\section{Methods}
 
-\section{Intensity analysis}
+When talking about point-processes with categorical marks, i.e multivariate point-processes,
+it is useful to distinguish between the \emph{component} processes consisting of points with 
+the same type (i.e. having a mark of the same value) and the \emph{superposition} process, that is the point-process
+when the marks have been discarded. Here I present an overview of all the methods used in the analysis.
+
+\subsection{Intensity}
+Intensity is a ``first order'' characteristic and usually the first aspect
+of a point process to be analyzed. The intensity function is commonly denoted with $\lambda(x)$ (the spatial
+coordinates will be denoted by $x$).
+In case of a homogenous point process, the intensity is constant, i.e $\lambda(x)=\lambda$.
+
+\subsubsection{Kernel smoother}
+
+Kernel smoother is a simple nonparametric method for estimating intensity. The idea is
+to choose a kernel, usually an isotropic Gaussian, and ``filter'' the image with it. 
+Applying the filter means taking the convolution:
+
+\begin{align}
+	\hat{\lambda}(x)&=\sum_{i=1}^n\frac{k(x-x_i|\theta)}{\defint{D}{}{k(x-x_i|\theta)}{x}}.
+	\label{eq:intensity_nonp}
+\end{align}
+In equation~\eqref{eq:intensity_nonp} $k(\cdot|\theta)$ stands for the chosen kernel function with
+given parameters $\theta$ and the integral is over the domain $D$ of the observation window. 
+In case of the isotropic Gaussian we would have $k(\cdot|\theta)=N(\cdot|x,\sigma^2\v{I})$.
+
+
+\subsection{Null hypotheses}
+
+The homogenous Poisson process is an important null model for point processes, since
+in that case the intensity is constant and the locations of the points are i.i.d given
+the number of points. It is then common to test for deviance of the pattern in question
+to this null model, the model of \emph{complete spatial randomness} (CSR).
+
+A marked point process is typically tested against multiple null hypotheses:
+\begin{itemize}
+  \item random labeling
+  	\begin{itemize}
+  		\item The marks are i.i.d random variables given the locations
+	\end{itemize}
+	\item independence of components
+	\begin{itemize}
+  		\item The points and marks in each \emph{subprocess} or \emph{component}, i.e. the process that consists of the
+  		points having the same categorical marks, exhibit whatever distributional characteristics, but the subprocesses are independent of each
+  		other.
+	\end{itemize}
+	\item complete spatial randomness and independence (CSRI)
+	\begin{itemize}
+  		\item the locations are distributed like in a homogenous Poisson process and the marks
+  		are i.i.d 
+	\end{itemize}
+\end{itemize}
+
+\subsection{Intra-species interaction}
+
+The interaction between points in a process is commonly estimated
+with the so called \emph{Ripley's K-function} and its derivatives,
+such as the L-function. By estimating these functions and comparing
+the values to ones estimated from a homogenous Poisson process, one
+should be able to tell something about the \emph{clustering} or \emph{regularity}
+of the process.
+
+\subsubsection{K \& L functions}
+
+The $K(r)$-function estimates the expected number of points
+inside a circle of radius $r$ of a stationary point process with intensity $\lambda$
+
+\begin{align}
+	K(r)&=\frac{E(r)}{\lambda}.
+	\label{eq:K}
+\end{align}
+Here $E(r)$ is the expected number of additional points within radius $r$ 
+of a typical point. The $K$-function is typically estimated by
+
+\begin{align}
+	\hat{K}(r)&=\frac{\left|D\right|\sum_{i=1}^n\sum_{j\neq i}I\left(\left\| x_i-x_j\right\|\leq r\right)}{n^2},
+	\label{eq:Kest}
+\end{align} 
+where $I$ is the indicator function. Usually some sort of edge correction is also applied, to take into
+account the finite observation window. For a homogenous Poisson point-process, we get
+the theoretical value $K(r)_{P}=\pi r^2$.
+The $L(r)$-function can be defined as
+\begin{align}
+	L(r)&=\sqrt{\frac{K(r)}{\pi}}
+	\label{eq:lfunction}
+\end{align}
+and so it should equal $r$ for homogenous Poisson processes. In what follows, we will
+consider other generalized versions of the $K$-function, but it should be remembered
+that the corresponding generalizations of the $L$-function can always be obtained
+analogously to the definition in equation~\eqref{eq:lfunction}.
+
+There exists an inhomogenous version of the K (and L) function, that takes into account
+the spatial inhomogenity by appropriate reweighting based on the intensity $\lambda(x)$. In this way the result is
+again $\pi r^2$ for an inhomogenous Poisson process with the corresponding intensity. For more details,
+see \cite{inhomogenousK}.
+
+\subsubsection{Pair correlation function $g(r)$}
+
+The pair correlation function $g(r)$ is defined with the derivative of the $K$ function
+\begin{align}
+	g(r)&=\frac{1}{2\pi r}\dod{K(r)}{r}
+	\label{eq:g}
+\end{align}
+It takes the constant value $1$ for a homogenous Poisson process. The
+generalizations of the $K$ function which are later presented give rise
+to the corresponding generalizations of the pair correlation function and
+their relationship is analogous to the one in equation~\eqref{eq:g}.
+
+
+\subsection{Inter-species interaction}
+
+\subsubsection{$K_{ij}$ function}
+
+The bivariate $K$ function is a straightforward generalization of the original $K$
+function. It is defined as 
+
+\begin{align}
+	K_{ij}(r)&=\frac{E_{ij}(r)}{\lambda_j}.
+	\label{eq:Kij}
+\end{align}
+Here $\lambda_j$ is the intensity of component process $j$ and $E_{ij}(r)$ is the expected
+number of type $j$ points within distance $r$ of a typical type $i$ point. Now if the
+component processes are independent, we again find the correspondence $K_{ij}(r)=\pi r^2$.
+Also $K_{ii}$ is the ordinary $K$ function for component process $i$.
+
+
+\subsubsection{$K_{i\bullet}$ function}
+
+The $K_{i\bullet}$ function is called the ``one-to-any'' $K$-function. It is defined as
+\begin{align}
+	K_{i\bullet}(r)&=\frac{E_{i\bullet}(r)}{\lambda}.
+	\label{eq:Kij}
+\end{align}
+Here $\lambda$ is the intensity of superposition process and $E_{i\bullet}(r)$ is the expected
+number of any types of points within distance $r$ of a typical type $i$ point. Under the random
+labeling hypothesis, the typical point of type $i$ is also a typical point of the superposition
+process, so that $K_{i\bullet}(r)=K(r)$ where $K(r)$ is the $K$-function of the superposition process.
+
+\subsubsection{Partial Pair Correlation Function $g(r)_{ij}$}
+
+The generalization of the pair correlation function $g(r)$ to the bivariate
+case, $g_{ij}(r)$, is called the partial pair correlation function. It has a useful
+interpretation as being proportional to the probability that a point of type $i$
+and a point of type $j$ are separated by distance $r$.
+
+
+\section{Results}
+
+\subsection{Intensity analysis}
 
 It's obvious just by looking at figure~\ref{fig:lansing_separate} that 
 the intensity profiles exhibit significant interspecies variability. For example
@@ -271,34 +419,9 @@ conclusions
   \label{fig:combined_intensities}
 \end{figure}
 
-\section{Randomization tests}
+\subsection{Randomization tests}
 
-The homogenous Poisson process is an important null model for point processes, since
-in that case the intensity is constant and the locations of the points are i.i.d given
-the number of points. It is then common to test for deviance of the pattern in question
-to this null model, the model of \emph{complete spatial randomness} (CSR).
 
-A marked point process can depart from complete randomness in multiple ways:
-\begin{itemize}
-  \item random labeling
-  	\begin{itemize}
-  		\item The marks are i.i.d random variables given the locations
-	\end{itemize}
-	\item independence of components
-	\begin{itemize}
-  		\item The points and marks in each \emph{subprocess} or \emph{component}, i.e. the process that consists of the
-  		points having the same categorical marks, exhibit whatever distributional characteristics, but the subprocesses are independent of each
-  		other.
-	\end{itemize}
-	\item complete spatial randomness and independence (CSRI)
-	\begin{itemize}
-  		\item the locations are distributed like in a homogenous Poisson process and the marks
-  		are i.i.d 
-	\end{itemize}
-\end{itemize}
-
-Testing for these different null hypotheses is 
-done by considering the ``cross" versions of the second order summary functions of the process.
 In our case it is quite obvious even without testing, that the
 subprocesses show interaction and the labeling is not random. For the sake
 of completeness, tests were carried for each of the null hypotheses.
@@ -351,12 +474,12 @@ the marked point process. The results are presented in figure~\ref{fig:rl}.
   \label{fig:rl}
 \end{figure}
 
-\section{Interaction analysis}
+\subsection{Interaction analysis}
 
 Next we will attempt to characterize the interactions within a single species
 and amongst different species.
 
-\subsection{Intra-species interaction}
+\subsubsection{Intra-species interaction}
 
 I have plotted the inhomogenous L-functions \cite{illian}\cite{gelfand} for the maples
 and hickories and the ordinary L-function for the oaks.
@@ -379,58 +502,30 @@ These are displayed in figure~\ref{fig:intra_interactions}.
 \end{figure}
 
 
-\subsection{Inter-species interaction}
+\subsubsection{Inter-species interaction}
 
-The interspecies interaction was quantified by using the two
-different summary statistics: the \emph{partial pair correlation function} (PPCF)
-and the \emph{mark connection function}. These can both be interpreted
-as displaying the probability, that there is a point of species $i$
-an $r$ distance away from a point of species $j$. The plots have been made
-for all the pairings $i,j$ from the three species, resulting
-in $6$ different plots (pairings of type $i,i$ are also included).
-The PPCF is displayed in figure~\ref{fig:pcf} and the mark-connection function
-in figure~\ref{fig:markc}. As can be seen, both of them show quite similar
-results.
+The interspecies interaction was quantified by using 
+the inhomogenous version of the partial pair correlation function $g(r)_{ij}$. 
+It can be interpreted as being proportional to the probability, 
+that there is a point of species $i$ an $r$ distance away from a point of species $j$. 
+The plots have been made for all the pairings $i,j$ from the three species, resulting
+in $3$ different plots (pairings of type $i,i$ are also included) displayed in figure~\ref{fig:ppcf}.
 
-
-\begin{figure}[htb]
+\begin{figure}[htbp]
   \begin{adjustwidth}{-2in}{-2in}
 	  \centering
-	  \subfloat[Mark-connection function]{\label{fig:markc}\includegraphics[width=0.7\textwidth]{markc}}
-	  \subfloat[PPCF]{\label{fig:pcf}\includegraphics[width=0.7\textwidth]{pcf}}
+	  \subfloat[Hickory \& Maple]{\label{fig:ppcf_hm}\includegraphics[width=0.4\textwidth]{ppcf_hickory_maple}}
+	  \subfloat[Hickory \& Oak]{\label{fig:ppcf_ho}\includegraphics[width=0.4\textwidth]{ppcf_hickory_oak}}
+	  \subfloat[Oak \& Maple]{\label{fig:ppcf_hm}\includegraphics[width=0.4\textwidth]{ppcf_maple_oak}}
   \end{adjustwidth}
-  \caption{The mark-connection function and the partial pair-correlation function that measure intra- and interspecies interactions.}
+  \caption{The partial pair correlation functions for different pairings of the species}
+  \label{fig:ppcf}
 \end{figure}
 
-\clearpage
-
-\section{Methods}
-
-\subsection{Intensity}
-
-\subsubsection{Kernel smoother}
-
-\subsection{Intra-species interaction}
-
-\subsubsection{K \& L functions}
-
-\subsection{Inter-species interaction}
-
-\subsubsection{$L_{ij}$ function}
-
-\subsubsection{$L_{i\bullet}$ function}
-
-\subsubsection{mark-connection function}
-
-\section{Results}
-
-\subsection{Intensity}
-
-\subsection{Intra-species interaction}
-
-\subsection{Inter-species interaction}
-
 \section{Conclusion}
+
+The same conclusion is reported in \cite{perry}
+
 
 \printbibliography
 \clearpage

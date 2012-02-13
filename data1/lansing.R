@@ -3,10 +3,11 @@
 exportFigs <- 1
 displayFigs <- 0
 interaction <- 0
-speciesinteraction <- 1
+speciesinteraction <- 0
 intensity <- 0
+ppcf <- 1
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
-nsim <- 3
+nsim <- 9
 
 require("spatstat");
 require("RColorBrewer")
@@ -18,7 +19,7 @@ lansingm <- lansing
 unitname(lansingm) <- list("metre","metres",1)
 ft2m <- round(lansing$window$units$multiplier/3.2808399)
 lansingm <- affine(lansingm,diag(c(ft2m,ft2m)))
-range <- lansingm$window$xrange
+range <- c(0,150)#lansingm$window$xrange
 
 jet.colors <-
   colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan",
@@ -60,7 +61,7 @@ listplot <- function(k,v,file=FALSE,formula=FALSE,...) {
 	return(p)
 }
 
-sigma <- bw.relrisk(lansing);
+sigma <- 2.5*bw.relrisk(nlansing);
 
 
 nlansing <- lansingm[lansingm$marks!="misc"];
@@ -75,14 +76,11 @@ levels(oaks$marks) <- c("blackoak",NA,NA,NA,"redoak","whiteoak")
 oakhm <- nlansing
 levels(oakhm$marks) <- c("oak","hm","hm")
 
-bw <- bw.diggle(nlansing)
+#bw <- bw.diggle(nlansing)
 
 if(intensity) {
-	dens1 <- density(split(nlansing),
-		sigma=2.5*sigma,
-		dimyx=dimyx)
 	
-	rl=relrisk(nlansing,sigma=2.5*sigma)
+	rl=relrisk(nlansing,sigma=sigma,dimyx=dimyx)
 	
 	# smoothed intensities
 	mapply(listplot,names(rl),rl,
@@ -122,15 +120,40 @@ if(intensity) {
 
 if(interaction) {
 	
-	patrns <- c(split(nlansing),list(hm=hm,all=nlansing))
-	Ls <- mapply(envelope,patrns,list(Lest,Linhom,Linhom,Lest,Lest),
+
+	snlansing <- split(nlansing)	
+
+	Lss <- list(oak=snlansing$oak,hm=hm,all=nlansing)
+	Ls <- mapply(envelope,Lss,list(Lest,Lest,Lest),
+		MoreArgs=list(
+			nsim=nsim,
+			correction="Ripley",
+			r=seq.int(range[1],range[2],(range[2]-range[1])/500)
+		),SIMPLIFY=FALSE)
+	
+	dens <- density(split(nlansing),
+		sigma=sigma)
+	
+	Lssi <- list(maple=snlansing$maple,hickory=snlansing$hickory)
+
+	Lsi <- mapply(
+		envelope,
+		Lssi,
+		list(Linhom,Linhom),
+		simulate=list(expression(rpoispp(dens$maple)),expression(rpoispp(dens$hickory))),
 		MoreArgs=list(
 			nsim=nsim,
 			correction="Ripley",
 			normpower=2,
-			sigma=2.5*sigma
+			sigma=sigma,
+			r=seq.int(range[1],range[2],(range[2]-range[1])/500)
 		),SIMPLIFY=FALSE)
-	mapply(listplot,names(patrns),Ls,
+	
+
+	nms <- names(c(Lssi,Lss))
+
+
+	mapply(listplot,nms,c(Lsi,Ls),
 		MoreArgs=list(
 			main="",
 			formula=.-r~r,
@@ -139,12 +162,26 @@ if(interaction) {
 			width=3,
 			height=3,
 			mar=c(2.0,0.3,0.1,0.3),
-			yaxt="n"
+			yaxt="n",
+			xlim=c(0,150),
+			lty=1,
+			lwd=2
 		))	
 }
 
 if(speciesinteraction) {
 	
+	legendfn <- function(p,k) {
+				legend(
+					'topright',
+					c(k,"theoretical"),
+					col=p$col[1:2],
+					lty=1,
+					lwd=2
+				)
+			}
+	legendfn <- NULL
+
 	# CSRI
 	i <- c("hickory","hickory","maple")
 	j <- c("oak","maple","oak")
@@ -155,6 +192,7 @@ if(speciesinteraction) {
 	Ls1 <- envelope(
 			nlansing,
 			Lcross,
+			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 			i=i[1],
 			j=j[1],
 			nsim=nsim,
@@ -169,6 +207,7 @@ if(speciesinteraction) {
 			i=i[2:3],
 			j=j[2:3],
 			MoreArgs=list(
+				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 				nsim=nsim,
 				simulate=Ls1
 			),SIMPLIFY=FALSE)	
@@ -186,15 +225,7 @@ if(speciesinteraction) {
 			height=3,
 			mar=c(2.0,0.3,0.1,0.3),
 			yaxt="n",
-			afterfn=function(p,k) {
-				legend(
-					'topright',
-					c(k,"theoretical"),
-					col=p$col[1:2],
-					lty=1,
-					lwd=2
-				)
-			}
+			afterfn=legendfn
 		),SIMPLIFY=FALSE)	
 	
 	# independence of components
@@ -210,6 +241,7 @@ if(speciesinteraction) {
 			Lcross,
 			i=i[1],
 			j=j[1],
+			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 			nsim=nsim,
 			correction="Ripley",
 			simulate = expression(rshift(nlansing)),
@@ -223,6 +255,7 @@ if(speciesinteraction) {
 			j=j[2:3],
 			MoreArgs=list(
 				simulate = Ls1,
+				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 				nsim=nsim
 			),SIMPLIFY=FALSE)	
 	
@@ -240,15 +273,7 @@ if(speciesinteraction) {
 			height=3,
 			mar=c(2.0,0.3,0.1,0.3),
 			yaxt="n",
-			afterfn=function(p,k) {
-				legend(
-					'topright',
-					c(k,"theoretical"),
-					col=p$col[1:2],
-					lty=1,
-					lwd=2
-				)
-			}
+			afterfn=legendfn
 		),SIMPLIFY=FALSE)	
 
 	# random labeling
@@ -262,6 +287,7 @@ if(speciesinteraction) {
 			nlansing,
 			Ldif,
 			i="hickory",
+			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 			nsim=nsim,
 			correction="Ripley",
 			simulate = expression(rlabel(nlansing)),
@@ -269,9 +295,10 @@ if(speciesinteraction) {
 
 	Ls <- mapply(
 			envelope,
-			rep(list(nlansing),length(i)),
-			rep(list(Ldif),length(i)),
+			rep(list(nlansing),2),
+			rep(list(Ldif),2),
 			i=c("oak","maple"),
+			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 			MoreArgs=list(
 				simulate = Ls1,
 				nsim=nsim
@@ -291,19 +318,11 @@ if(speciesinteraction) {
 			yaxt="n",
 		 	lwd=2,
 		 	lty=1,
-			afterfn=function(p,k) {
-				legend(
-					'topright',
-					c(sprintf("Ldiff-%s",k),"theoretical"),
-					col=p$col[1:2],
-					lty=1,
-					lwd=2
-				)
-			}
+			afterfn=legendfn
 		),SIMPLIFY=FALSE)
 	
 
-	# mark connection functions, pairwise
+	#  mark connection functions, pairwise
 	# bw <- 2*bw.stoyan(nlansing)
 	# i <- c("hickory","hickory","maple","hickory","maple","oak")
 	# j <- c("oak","maple","oak","hickory","maple","oak")
@@ -332,7 +351,7 @@ if(speciesinteraction) {
 	# 		legend=FALSE,
 	# 		col=col,
 	# 		lty=1,
-	# 		lwd=4,
+	# 		lwd=3,
 	# 		ylab="mark-connection",
 	# 		main="",
 	# 		file="markc.pdf",nodevoff=TRUE,
@@ -345,7 +364,7 @@ if(speciesinteraction) {
 	# 		return(sprintf("%s-%s",i,j))
 	# 	},rev(i),rev(j)),
 	# 	col=col,
-	# 	lwd=4,
+	# 	lwd=3,
 	# 	lty=v$lty)
 	# if(exportFigs) {
 	# 	dev.off()
@@ -353,4 +372,53 @@ if(speciesinteraction) {
 
 }
 
+if(ppcf) {
+
+	dens <- density(split(nlansing),sigma=sigma)
+
+	# ppcf 
+	bw <- 2*bw.stoyan(nlansing)
+	i <- c("hickory","hickory","maple")
+	j <- c("oak","maple","oak")
+	fns <- mapply(function(i,j){
+		return(sprintf("%s_%s",i,j))
+	},i,j,USE.NAMES=FALSE)
+	
+	ppcfd <- mapply(
+			envelope,
+			rep(list(nlansing),3),
+			rep(list(pcfcross.inhom),3),
+			i=i,
+			j=j,
+			lambdaI=list(dens[[i[1]]],dens[[i[2]]],dens[[i[3]]]),
+			lambdaJ=list(dens[[j[1]]],dens[[j[2]]],dens[[j[3]]]),
+			MoreArgs=list(
+				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
+				simulate=expression(
+					rmpoispp(
+						dens,
+						types=names(dens)
+					)
+				),
+				correction="Ripley",
+				bw=bw,
+				nsim=nsim
+			),SIMPLIFY=FALSE)
+
+
+	v <- mapply(listplot,fns,ppcfd,
+		MoreArgs=list(
+			main="",
+			formula=.~r,
+			file="ppcf_%s.pdf",
+			legend=FALSE,
+			width=3,
+			height=3,
+			mar=c(2.0,0.3,0.1,0.3),
+			yaxt="n",
+		 	lwd=2,
+		 	lty=1,
+			xlim=c(range[1]+3,range[2]-5)
+		))
+}
 	
