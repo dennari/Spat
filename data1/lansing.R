@@ -321,62 +321,13 @@ if(speciesinteraction) {
 			afterfn=legendfn
 		),SIMPLIFY=FALSE)
 	
-
-	#  mark connection functions, pairwise
-	# bw <- 2*bw.stoyan(nlansing)
-	# i <- c("hickory","hickory","maple","hickory","maple","oak")
-	# j <- c("oak","maple","oak","hickory","maple","oak")
-	# markcs <- mapply(
-	# 		markconnect,
-	# 		rep(list(nlansing),length(i)),
-	# 		i,
-	# 		j,
-	# 		MoreArgs=list(
-	# 			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
-	# 			correction="Ripley",
-	# 			bw=bw,
-	# 			normalise=FALSE
-	# 		),SIMPLIFY=FALSE)
-	# markc <- markcs[[1]]
-	# markc <- markc[,c("r","iso")]
-	# for(m in markcs[2:length(markcs)]) {
-	# 	markc <- cbind(markc,m[,c("r","iso")])
-	# }
-	# col <- sapply(brewer.pal(length(markc)-1,"Dark2"),function(c) {
-	# 		return(paste(c,as.hexmode(round(0.7*255)),sep=''))
-	# 	},USE.NAMES=FALSE)
-
-	# v <- myplot(
-	# 		markc,
-	# 		legend=FALSE,
-	# 		col=col,
-	# 		lty=1,
-	# 		lwd=3,
-	# 		ylab="mark-connection",
-	# 		main="",
-	# 		file="markc.pdf",nodevoff=TRUE,
-	# 		xlim=c(range[1],range[2]),
-	# 		ylim=c(0,0.3),
-	# 		width=5,
-	# 		height=5)
-	# legend('topright',
-	# 	mapply(function(i,j){
-	# 		return(sprintf("%s-%s",i,j))
-	# 	},rev(i),rev(j)),
-	# 	col=col,
-	# 	lwd=3,
-	# 	lty=v$lty)
-	# if(exportFigs) {
-	# 	dev.off()
-	# }
-
 }
 
 if(ppcf) {
 
 	dens <- density(split(nlansing),sigma=sigma)
 
-	# ppcf 
+	# ppcf inhomog
 	bw <- 2*bw.stoyan(nlansing)
 	i <- c("hickory","hickory","maple")
 	j <- c("oak","maple","oak")
@@ -384,7 +335,7 @@ if(ppcf) {
 		return(sprintf("%s_%s",i,j))
 	},i,j,USE.NAMES=FALSE)
 	
-	ppcfd <- mapply(
+	ppcfdi <- mapply(
 			envelope,
 			rep(list(nlansing),3),
 			rep(list(pcfcross.inhom),3),
@@ -400,6 +351,40 @@ if(ppcf) {
 						types=names(dens)
 					)
 				),
+				correction="Ripley",
+				bw=bw,
+				nsim=nsim
+			),SIMPLIFY=FALSE)
+
+
+	v <- mapply(listplot,fns,ppcfdi,
+		MoreArgs=list(
+			main="",
+			formula=.~r,
+			file="ppcfi_%s.pdf",
+			legend=FALSE,
+			width=3,
+			height=3,
+			mar=c(2.0,0.3,0.1,0.3),
+			yaxt="n",
+		 	lwd=2,
+		 	lty=1,
+			xlim=c(range[1]+3,range[2]-5)
+		))
+	
+	# homog ppcf
+	ppcfd <- mapply(
+			envelope,
+			list(
+				nlansing[marks(nlansing)=="hickory"|marks(nlansing)=="oak"],
+				nlansing[marks(nlansing)=="hickory"|marks(nlansing)=="maple"],
+				nlansing[marks(nlansing)=="maple"|marks(nlansing)=="oak"]
+			),
+			rep(list(pcfcross),3),
+			i=i,
+			j=j,
+			MoreArgs=list(
+				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 				correction="Ripley",
 				bw=bw,
 				nsim=nsim
