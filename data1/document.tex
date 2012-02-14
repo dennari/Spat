@@ -149,36 +149,15 @@ It's a categorically marked dataset, where the mark can have one of the values
 
 \begin{itemize}
   \item blackoak
-  	\begin{itemize}
-  	  \item \emph{Quercus velutina}
-  	  \item known associates: whiteoak, redoak, hickory, maple
-  	\end{itemize} 
   \item redoak
-   \begin{itemize}
-  	  \item \emph{Quercus rubra}
-  	  \item known associates: whiteoak, blackoak
-  	\end{itemize}  
   \item whiteoak
-   \begin{itemize}
-  	  \item \emph{Quercus alba}
-  	  \item known associates: whiteoak, redoak
-  	\end{itemize}    
   \item hickory
-   \begin{itemize}
-  	  \item \emph{Carya}
-  	  \item known associates: \todo[fancyline]{Look it up} 
-  	\end{itemize}  
   \item maple
-   \begin{itemize}
-  	  \item \emph{Acer}
-  	  \item known associates: \todo[fancyline]{Look it up}
-  	\end{itemize}  
-  \item misc \todo[fancyline]{find the original article}
+  \item misc
 \end{itemize}  
 
 The interesting questions will be:
 \begin{itemize}
-  \item do the associations known \emph{a priori} show in the data
   \item do some species avoid some other species
   \item clustering behavior inside and between the species
 \end{itemize}
@@ -201,13 +180,13 @@ The dataset is plotted in figure~\ref{fig:lansing_separate}.
 
  \section{Preprocessing}
 
-The different oaks, namely the black, the white and the redoaks seem to
-display rather homogenous intensities judging from the point patterns.
+The different oaks, namely the black, the white and the redoaks were combined into
+a single category to simplify the analysis.
 Taking into account the prior information, that these oaks tend associate
-with each other, it seems reasonable to combine the different oaks into
-a single category. Also since there is no information regarding the constitution
-of the ``misc'' category, it is discarded from further analysis. The point patterns
-resulting from these preprocessing steps are displayed in figure~\ref{fig:lansing_processed}. 
+with each other, this decision seems reasonable. Also since there is no 
+information regarding the constitution of the ``misc'' category, it is discarded 
+from further analysis. The point patterns resulting from these preprocessing steps 
+are displayed in figure~\ref{fig:lansing_processed}.
 
 \begin{figure}[htb]
   \begin{adjustwidth}{-2in}{-2in}
@@ -224,14 +203,14 @@ resulting from these preprocessing steps are displayed in figure~\ref{fig:lansin
 
 When talking about point-processes with categorical marks, i.e multivariate point-processes,
 it is useful to distinguish between the \emph{component} processes consisting of points with 
-the same type (i.e. having a mark of the same value) and the \emph{superposition} process, that is the point-process
-when the marks have been discarded. Here I present an overview of all the methods used in the analysis.
+the same type (i.e. having a mark of the same value) and the \emph{superposition} process, that is 
+the point-process of the locations only, i.e. when the marks have been discarded. 
 
 \subsection{Intensity}
 Intensity is a ``first order'' characteristic and usually the first aspect
 of a point process to be analyzed. The intensity function is commonly denoted with $\lambda(x)$ (the spatial
 coordinates will be denoted by $x$).
-In case of a homogenous point process, the intensity is constant, i.e $\lambda(x)=\lambda$.
+In case of a stationary point process, the intensity is constant, i.e $\lambda(x)=\lambda$.
 
 \subsubsection{Kernel smoother}
 
@@ -269,8 +248,8 @@ A marked point process is typically tested against multiple null hypotheses:
 	\end{itemize}
 	\item complete spatial randomness and independence (CSRI)
 	\begin{itemize}
-  		\item the locations are distributed like in a homogenous Poisson process and the marks
-  		are i.i.d 
+  		\item The locations are distributed like in a homogenous Poisson process and the marks
+  		are i.i.d. This the definitions of a \emph{stationary Poisson marked point process.} 
 	\end{itemize}
 \end{itemize}
 
@@ -280,8 +259,9 @@ The interaction between points in a process is commonly estimated
 with the so called \emph{Ripley's K-function} and its derivatives,
 such as the L-function. By estimating these functions and comparing
 the values to ones estimated from a homogenous Poisson process, one
-should be able to tell something about the \emph{clustering} or \emph{regularity}
-of the process.
+should be able to tell something about the \emph{clustering} or \emph{inhibition}
+of the points in the process. By intra-species interaction we mean that
+the component processes are considered independently and one at a time.
 
 \subsubsection{K \& L functions}
 
@@ -367,6 +347,20 @@ interpretation as being proportional to the probability that a point of type $i$
 and a point of type $j$ are separated by distance $r$.
 
 
+\subsection{Envelope test}
+
+Testing of a null hypotheses ``the model fits the data'' can be achieved by a simple and rather
+informal method of plotting so called envelopes around the estimated
+statistic \cite{illian}. The envelopes are obtained by simulating
+$N$ datasets from the model whose fit we are testing and calculating
+the test statistic for all the simulated datasets. Then for each $r$
+that is considered the corresponding envelope values are obtained by 
+selecting the minimum and maximum values of the test statistic across the simulated datasets.
+In this analysis we have chosen $N=99$ for all the envelopes.
+Usually the envelope test is regarded as a signifigance test and the model
+is accepted if the test statistic stays between the envelopes.
+
+
 \section{Results}
 
 \subsection{Intensity analysis}
@@ -387,10 +381,9 @@ More conclusions can be drawn by plotting some combined point patterns. In
 figure~\ref{fig:combined_intensities} there are all the trees plotted together, then
 the oaks and finally the maples and the hickories combined. Indeed, it seems
 that when plotted in these combinations, it would be reasonable to assume
-constant intensities. We can already come to the following
-conclusions
+constant intensities. We are then ready to formulate the following hypotheses
 \begin{itemize}
-  \item discarding the marks, the intensity of trees is homogenous
+  \item discarding the marks, the intensity of all trees is homogenous
   \item oaks are independent of other species
   \item hickories and maples show strong segregation
 \end{itemize}
@@ -421,57 +414,74 @@ conclusions
 
 \subsection{Randomization tests}
 
+We restrict our attention in this section to the bivariate case of hickories
+and maples. It is quite obvious even without testing, that the
+component processes are not independent and the labeling is not random.
+Different tests were carried to show that the qualitative analysis is correct.
 
-In our case it is quite obvious even without testing, that the
-subprocesses show interaction and the labeling is not random. For the sake
-of completeness, tests were carried for each of the null hypotheses.
+In figure~\ref{fig:csri_hm} the null hypothesis of complete spatial randomness
+and independence (CSRI) was tested. If the assumption is correct the cross $L_{ij}$ function 
+should be equal to the $L$ function estimated from a homogenous Poisson process
+with intensity equal to the intensity of the superposition process \cite{gelfand}.
+As can be seen, the null hypothesis has to be discarded with a very high signifigance level.
 
-In figure~\ref{fig:csri} the CSRI assumption was tested. If the null hypothesis
-was correct, the $L_{ij}$ function should stay between the envelopes obtained
-by simulating a homogenous Poisson process.
-
-The indepence of components null hypothesis can be tested by comparing the empirical
+The indepence of components (IOC) null hypothesis can be tested by comparing the empirical
 $L_{ij}$ function to the envelopes obtained by splitting the data into subprocesses by mark,
 and then randomly shifting them independently of each other. This case is presented
-in figure~\ref{fig:ioc}.
+in figure~\ref{fig:ioc_hm}. In this case the test statistic is somewhat closer to the
+envelopes than in the previous test, but still it is not inside them pretty much anywhere.
+The null hypothesis is discarded.
 
 Finally the random labeling property can be accounted for by testing for the deviance
 of the one-to-any type L-function from the L-function obtained by discarding the marks.
 These whould be equal under the null hypothesis. The envelopes can be constructed
 by calculating this deviance for datasets obtained by randomly relabeling
-the marked point process. The results are presented in figure~\ref{fig:rl}.
+the marked point process. The results are presented in figure~\ref{fig:rl_hm}.
+This test is more interesting than the previous ones. It seems that the
+null hypothesis has to be discarded, since the estimate jumps very briefly out of the
+envelope bounds near $r=0$.
 
-
+% \begin{figure}[htbp]
+%   \begin{adjustwidth}{-2in}{-2in}
+% 	  \centering
+% 	  \subfloat[Hickory \& Maple]{\label{fig:csri_hm}\includegraphics[width=0.4\textwidth]{csri_hickory_maple}}
+% 	  \subfloat[Hickory \& Oak]{\label{fig:csri_ho}\includegraphics[width=0.4\textwidth]{csri_hickory_oak}}
+% 	  \subfloat[Oak \& Maple]{\label{fig:csri_hm}\includegraphics[width=0.4\textwidth]{csri_maple_oak}}
+%   \end{adjustwidth}
+%   \caption{The empirical differences between the $L_{ij}$ functions from the general L function}
+%   \label{fig:csri}
+% \end{figure}
+% \begin{figure}[htbp]
+%   \begin{adjustwidth}{-2in}{-2in}
+% 	  \centering
+% 	  \subfloat[Hickory \& Maple]{\label{fig:ioc_hm}\includegraphics[width=0.4\textwidth]{ioc_hickory_maple}}
+% 	  \subfloat[Hickory \& Oak]{\label{fig:ioc_ho}\includegraphics[width=0.4\textwidth]{ioc_hickory_oak}}
+% 	  \subfloat[Oak \& Maple]{\label{fig:ioc_hm}\includegraphics[width=0.4\textwidth]{ioc_maple_oak}}
+%   \end{adjustwidth}
+%   \caption{The empirical $L_{ij}$ functions with envelopes from random shiftings of the subprocesses}
+%   \label{fig:ioc}
+% \end{figure}
+% \begin{figure}[htbp]
+%   \begin{adjustwidth}{-2in}{-2in}
+% 	  \centering
+% 	  \subfloat[Hickory \& Maple]{\label{fig:rl_hm}\includegraphics[width=0.4\textwidth]{rl_hickory_maple}}
+% 	  \subfloat[Hickory \& Oak]{\label{fig:rl_ho}\includegraphics[width=0.4\textwidth]{rl_hickory_oak}}
+% 	  \subfloat[Oak \& Maple]{\label{fig:rl_hm}\includegraphics[width=0.4\textwidth]{rl_maple_oak}}
+%   \end{adjustwidth}
+%   \caption{The empirical differences between the $L_{ij}$ functions from the general L function with envelopes from
+%   random labelings of the marked point pattern}
+%   \label{fig:rl}
+% \end{figure}
 \begin{figure}[htbp]
   \begin{adjustwidth}{-2in}{-2in}
 	  \centering
-	  \subfloat[Hickory \& Maple]{\label{fig:csri_hm}\includegraphics[width=0.4\textwidth]{csri_hickory_maple}}
-	  \subfloat[Hickory \& Oak]{\label{fig:csri_ho}\includegraphics[width=0.4\textwidth]{csri_hickory_oak}}
-	  \subfloat[Oak \& Maple]{\label{fig:csri_hm}\includegraphics[width=0.4\textwidth]{csri_maple_oak}}
+	  \subfloat[CSRI:\:$L_{ij}(r)-r$]{\label{fig:csri_hm}\includegraphics[width=0.43\textwidth]{csri_hickory_maple}}
+	  \subfloat[IOC: $L_{ij}(r)-r$]{\label{fig:ioc_hm}\includegraphics[width=0.43\textwidth]{ioc_hickory_maple}}
+	  \subfloat[Random labeling: $L_{i\bullet}(r)-L(r)$]{\label{fig:rl_hm}\includegraphics[width=0.43\textwidth]{rl_hickory_maple}}
   \end{adjustwidth}
-  \caption{The empirical differences between the $L_{ij}$ functions from the general L function}
-  \label{fig:csri}
-\end{figure}
-\begin{figure}[htbp]
-  \begin{adjustwidth}{-2in}{-2in}
-	  \centering
-	  \subfloat[Hickory \& Maple]{\label{fig:ioc_hm}\includegraphics[width=0.4\textwidth]{ioc_hickory_maple}}
-	  \subfloat[Hickory \& Oak]{\label{fig:ioc_ho}\includegraphics[width=0.4\textwidth]{ioc_hickory_oak}}
-	  \subfloat[Oak \& Maple]{\label{fig:ioc_hm}\includegraphics[width=0.4\textwidth]{ioc_maple_oak}}
-  \end{adjustwidth}
-  \caption{The empirical $L_{ij}$ functions with envelopes from random shiftings of the subprocesses}
-  \label{fig:ioc}
-\end{figure}
-\begin{figure}[htbp]
-  \begin{adjustwidth}{-2in}{-2in}
-	  \centering
-	  \subfloat[Hickory \& Maple]{\label{fig:rl_hm}\includegraphics[width=0.4\textwidth]{rl_hickory_maple}}
-	  \subfloat[Hickory \& Oak]{\label{fig:rl_ho}\includegraphics[width=0.4\textwidth]{rl_hickory_oak}}
-	  \subfloat[Oak \& Maple]{\label{fig:rl_hm}\includegraphics[width=0.4\textwidth]{rl_maple_oak}}
-  \end{adjustwidth}
-  \caption{The empirical differences between the $L_{ij}$ functions from the general L function with envelopes from
-  random labelings of the marked point pattern}
-  \label{fig:rl}
+  \caption{Tests for the different null hypotheses regarding $i=\text{hickories}$ and $j=\text{maples}$. See the text
+  for details. The black curve is the empirical estimate and the red curve is the theoretical value. The envelopes are drawn after $99$ simulations.}
+  \label{fig:nullh}
 \end{figure}
 
 \subsection{Interaction analysis}
@@ -481,9 +491,16 @@ and amongst different species.
 
 \subsubsection{Intra-species interaction}
 
-I have plotted the inhomogenous L-functions \cite{illian}\cite{gelfand} for the maples
-and hickories and the ordinary L-function for the oaks.
-These are displayed in figure~\ref{fig:intra_interactions}.
+In figure~\ref{fig:intra_interactions} the L-functions were
+plotted for the all the component processes and also for the superpositions
+of hickories and maples and of all the components. For hickories and maples
+(when considered independently) the inhomogenous version of the $L$ function was
+used, since spatial homogenity clearly cannot be assumed. In these cases the simulated
+datasets were from inhomogenous Poisson processes with intensity corresponding to
+a kernel estimate. In other cases the simulated datasets were from homogenous Poisson processes.
+As can be seen, clustering has to be concluded in all cases near $r\approx 15-25$m. Also in 
+the case of the superposition process of all trees, the plot indicates inhibition at distances
+over $r\approx 90$m.
 
 
 
@@ -496,8 +513,8 @@ These are displayed in figure~\ref{fig:intra_interactions}.
 	  \subfloat[Hickories \& Maples]{\label{fig:l_hm}\includegraphics[width=0.4\textwidth]{l_hm}}
 	  \subfloat[All trees]{\label{fig:l_all}\includegraphics[width=0.4\textwidth]{l_all}}
   \end{adjustwidth}
-  \caption{Besag's L-function for the different species. For maples and hickories the inhomogenous version was used. In all of the
-  figures there are the envelopes after $20$ monte carlo tests assuming complete spatial randomness.}
+  \caption{L-functions for the different species and superpositions of hickories and maples and of all the component processes. For maples and hickories the inhomogenous version was used. 
+  The envelopes were drawn after $99$ simulations in every case.}
   \label{fig:intra_interactions}
 \end{figure}
 
@@ -508,33 +525,62 @@ The interspecies interaction was quantified by using
 the inhomogenous version of the partial pair correlation function $g(r)_{ij}$. 
 It can be interpreted as being proportional to the probability, 
 that there is a point of species $i$ an $r$ distance away from a point of species $j$. 
-The plots have been made for all the pairings $i,j$ from the three species, resulting
-in $3$ different plots (pairings of type $i,i$ are also included) displayed in figure~\ref{fig:ppcf}.
+The plots have been made for all the pairings $i,j (i\neq j)$ from the three species, resulting
+in $3$ different plots displayed in figure~\ref{fig:ppcfi}. The red curves present the theoretical case under random labeling, 
+where there is a constant probablity of finding point of a certain type at all distances.
 
+It's obvious that there are artefacts in the plots in figure~\ref{fig:ppcfi} near the ends
+of the distance range. The presence of artefacts makes the interpretation rather difficult.
+If the dip in all the plots near $r\approx 0$ is not an artefact, it would suggest to me
+that it less likely than for a tree of the same species that there is a tree of another species very close.
+This interpretation is reinforced by looking at the inhomogenous pair correlation functions for the individual species
+in figure~\ref{fig:ppcfi2}, where there is a corresponding peak near $r\approx 0$, signifying
+clustering of the same species at small distances. Looking at figure~\label{fig:ppcfi_hm}
+would also suggest, that even after accounting for spatial inhomogeneity, there is still
+segregation between hickories and maples since the estimated PPCF function is at a positive angle
+with respect to the theoretical line.   
+
+
+
+% \begin{figure}[htbp]
+%   \begin{adjustwidth}{-2in}{-2in}
+% 	  \centering
+% 	  \subfloat[Hickory \& Maple]{\label{fig:ppcf_hm}\includegraphics[width=0.4\textwidth]{ppcf_hickory_maple}}
+% 	  \subfloat[Hickory \& Oak]{\label{fig:ppcf_ho}\includegraphics[width=0.4\textwidth]{ppcf_hickory_oak}}
+% 	  \subfloat[Oak \& Maple]{\label{fig:ppcf_hm}\includegraphics[width=0.4\textwidth]{ppcf_maple_oak}}
+%   \end{adjustwidth}
+%   \caption{The homogenous partial pair correlation functions for different pairings of the species}
+%   \label{fig:ppcf}
+% \end{figure}
 \begin{figure}[htbp]
   \begin{adjustwidth}{-2in}{-2in}
 	  \centering
-	  \subfloat[Hickory \& Maple]{\label{fig:ppcf_hm}\includegraphics[width=0.4\textwidth]{ppcf_hickory_maple}}
-	  \subfloat[Hickory \& Oak]{\label{fig:ppcf_ho}\includegraphics[width=0.4\textwidth]{ppcf_hickory_oak}}
-	  \subfloat[Oak \& Maple]{\label{fig:ppcf_hm}\includegraphics[width=0.4\textwidth]{ppcf_maple_oak}}
+	  \subfloat[Hickory \& Maple]{\label{fig:ppcfi_hm}\includegraphics[width=0.43\textwidth]{ppcfi_hickory_maple}}
+	  \subfloat[Hickory \& Oak]{\label{fig:ppcfi_ho}\includegraphics[width=0.43\textwidth]{ppcfi_hickory_oak}}
+	  \subfloat[Oak \& Maple]{\label{fig:ppcfi_mo}\includegraphics[width=0.43\textwidth]{ppcfi_maple_oak}}
   \end{adjustwidth}
-  \caption{The inhomogenous partial pair correlation functions for different pairings of the species}
-  \label{fig:ppcf}
-\end{figure}
-\begin{figure}[htbp]
-  \begin{adjustwidth}{-2in}{-2in}
-	  \centering
-	  \subfloat[Hickory \& Maple]{\label{fig:ppcf_hm}\includegraphics[width=0.4\textwidth]{ppcfi_hickory_maple}}
-	  \subfloat[Hickory \& Oak]{\label{fig:ppcf_ho}\includegraphics[width=0.4\textwidth]{ppcfi_hickory_oak}}
-	  \subfloat[Oak \& Maple]{\label{fig:ppcf_hm}\includegraphics[width=0.4\textwidth]{ppcfi_maple_oak}}
-  \end{adjustwidth}
-  \caption{The homogenous partial pair correlation functions for different pairings of the species}
+  \caption{The inhomogenous partial pair correlation functions for different pairings of the 
+  species. The red curves present the theoretical case under random labeling. }
   \label{fig:ppcfi}
 \end{figure}
+\begin{figure}[htbp]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Hickory]{\label{fig:ppcfi_hh}\includegraphics[width=0.43\textwidth]{ppcfi_hickory_hickory}}
+	  \subfloat[Maple]{\label{fig:ppcfi_mm}\includegraphics[width=0.43\textwidth]{ppcfi_maple_maple}}
+	  \subfloat[Oak]{\label{fig:ppcfi_oo}\includegraphics[width=0.43\textwidth]{ppcfi_oak_oak}}
+  \end{adjustwidth}
+  \caption{The inhomogenous pair correlation functions for the different species.}
+  \label{fig:ppcfi2}
+\end{figure}
+
+\clearpage
+
 
 \section{Conclusion}
 
-The same conclusion is reported in \cite{perry}
+It seems that there exists segregation between hickories and maples and the oaks display
+a rather constant intensity. The same conclusion is reported in \cite{perry}.
 
 
 \printbibliography

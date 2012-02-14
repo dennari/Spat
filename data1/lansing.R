@@ -6,8 +6,9 @@ interaction <- 0
 speciesinteraction <- 0
 intensity <- 0
 ppcf <- 1
+ppcf2 <- 0
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
-nsim <- 9
+nsim <- 99
 
 require("spatstat");
 require("RColorBrewer")
@@ -52,11 +53,11 @@ myplot <- function(...,width=6,height=6,mar=mar_lab,file=FALSE,nodevoff=FALSE,af
 		return(p)
 	}
 }
-listplot <- function(k,v,file=FALSE,formula=FALSE,...) {
+listplot <- function(k,v,file=FALSE,formula=FALSE,main="",...) {
 	if(formula != FALSE) {
-		p <- myplot(v,formula,file=sprintf(file,k),k=k,...)
+		p <- myplot(v,formula,file=sprintf(file,k),main=sprintf(main,k),k=k,...)
 	} else {
-		p <- myplot(v,file=sprintf(file,k),k=k,...)
+		p <- myplot(v,file=sprintf(file,k),main=sprintf(main,k),k=k,...)
 	}
 	return(p)
 }
@@ -325,26 +326,26 @@ if(speciesinteraction) {
 
 if(ppcf) {
 
-	dens <- density(split(nlansing),sigma=sigma)
-
+	dens <- density(split(nlansing))
+	nsim <- 19
 	# ppcf inhomog
-	bw <- 2*bw.stoyan(nlansing)
-	i <- c("hickory","hickory","maple")
-	j <- c("oak","maple","oak")
+	bw <- 2.5*bw.stoyan(nlansing)
+	i <- c("hickory","hickory","maple","hickory","maple","oak")
+	j <- c("oak","maple","oak","hickory","maple","oak")
 	fns <- mapply(function(i,j){
 		return(sprintf("%s_%s",i,j))
 	},i,j,USE.NAMES=FALSE)
 	
 	ppcfdi <- mapply(
 			envelope,
-			rep(list(nlansing),3),
-			rep(list(pcfcross.inhom),3),
+			rep(list(nlansing),6),
+			rep(list(pcfcross.inhom),6),
 			i=i,
 			j=j,
-			lambdaI=list(dens[[i[1]]],dens[[i[2]]],dens[[i[3]]]),
-			lambdaJ=list(dens[[j[1]]],dens[[j[2]]],dens[[j[3]]]),
+			lambdaI=list(dens[[i[1]]],dens[[i[2]]],dens[[i[3]]],dens[[i[6]]],dens[[i[4]]],dens[[i[5]]]),
+			lambdaJ=list(dens[[j[1]]],dens[[j[2]]],dens[[j[3]]],dens[[j[6]]],dens[[j[4]]],dens[[j[5]]]),
 			MoreArgs=list(
-				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
+				#r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 				simulate=expression(
 					rmpoispp(
 						dens,
@@ -357,7 +358,7 @@ if(ppcf) {
 			),SIMPLIFY=FALSE)
 
 
-	v <- mapply(listplot,fns,ppcfdi,
+	v <- mapply(listplot,fns[1:3],ppcfdi[1:3],
 		MoreArgs=list(
 			main="",
 			formula=.~r,
@@ -365,45 +366,108 @@ if(ppcf) {
 			legend=FALSE,
 			width=3,
 			height=3,
-			mar=c(2.0,0.3,0.1,0.3),
-			yaxt="n",
+			mar=c(2.0,2.0,0.2,0.3),
 		 	lwd=2,
 		 	lty=1,
-			xlim=c(range[1]+3,range[2]-5)
-		))
-	
-	# homog ppcf
-	ppcfd <- mapply(
-			envelope,
-			list(
-				nlansing[marks(nlansing)=="hickory"|marks(nlansing)=="oak"],
-				nlansing[marks(nlansing)=="hickory"|marks(nlansing)=="maple"],
-				nlansing[marks(nlansing)=="maple"|marks(nlansing)=="oak"]
-			),
-			rep(list(pcfcross),3),
-			i=i,
-			j=j,
-			MoreArgs=list(
-				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
-				correction="Ripley",
-				bw=bw,
-				nsim=nsim
-			),SIMPLIFY=FALSE)
-
-
-	v <- mapply(listplot,fns,ppcfd,
+			ylim=c(0.3,1.3)
+		))	
+	v <- mapply(listplot,fns[4:6],ppcfdi[4:6],
 		MoreArgs=list(
 			main="",
 			formula=.~r,
-			file="ppcf_%s.pdf",
+			file="ppcfi_%s.pdf",
 			legend=FALSE,
 			width=3,
 			height=3,
-			mar=c(2.0,0.3,0.1,0.3),
-			yaxt="n",
+			mar=c(2.0,2.0,0.2,0.3),
 		 	lwd=2,
 		 	lty=1,
-			xlim=c(range[1]+3,range[2]-5)
+		 	xlim=c(2,70.5)
 		))
+	
+	# homog ppcf
+	# ppcfd <- mapply(
+	# 		envelope,
+	# 		list(
+	# 			nlansing[marks(nlansing)=="hickory"|marks(nlansing)=="oak"],
+	# 			nlansing[marks(nlansing)=="hickory"|marks(nlansing)=="maple"],
+	# 			nlansing[marks(nlansing)=="maple"|marks(nlansing)=="oak"]
+	# 		),
+	# 		rep(list(pcfcross),3),
+	# 		i=i,
+	# 		j=j,
+	# 		MoreArgs=list(
+	# 			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
+	# 			correction="Ripley",
+	# 			bw=bw,
+	# 			nsim=nsim
+	# 		),SIMPLIFY=FALSE)
+
+
+	# v <- mapply(listplot,fns,ppcfd,
+	# 	MoreArgs=list(
+	# 		main="",
+	# 		formula=.~r,
+	# 		file="ppcf_%s.pdf",
+	# 		main="inhomog_%s",
+	# 		legend=FALSE,
+	# 		width=3,
+	# 		height=3,
+	# 		mar=c(2.0,0.3,0.1,0.3),
+	# 	 	lwd=2,
+	# 	 	lty=1,
+	# 		xlim=c(range[1]+3,range[2]-5)
+	# 	))
+}
+if(ppcf2) {
+
+	dens <- density(split(nlansing))
+
+	# ppcf inhomog
+	bw <- 2*bw.stoyan(nlansing)
+	i <- c("hickory","hickory","maple")
+	j <- c("oak","maple","oak")
+	fns <- mapply(function(i,j){
+		return(sprintf("%s_%s",i,j))
+	},i,j,USE.NAMES=FALSE)
+	
+	ppcfdi <- mapply(
+			pcfcross.inhom,
+			rep(list(nlansing),3),
+			i=i,
+			j=j,
+			lambdaI=list(dens[[i[1]]],dens[[i[2]]],dens[[i[3]]]),
+			lambdaJ=list(dens[[j[1]]],dens[[j[2]]],dens[[j[3]]]),
+			SIMPLIFY=FALSE)
+
+
+	v <- mapply(listplot,fns,ppcfdi,
+		MoreArgs=list(
+			main="inhomog_%s",
+			formula=.~r,
+			correction="Ripley",
+			ylim=c(0.3,1.3),
+			file="ppcfi_%s.pdf"
+		))
+	
+	# homog ppcf
+	# ppcfd <- mapply(
+	# 		pcfcross,
+	# 		list(
+	# 			nlansing[marks(nlansing)=="hickory"|marks(nlansing)=="oak"],
+	# 			nlansing[marks(nlansing)=="hickory"|marks(nlansing)=="maple"],
+	# 			nlansing[marks(nlansing)=="maple"|marks(nlansing)=="oak"]
+	# 		),
+	# 		i=i,
+	# 		j=j,
+	# 		SIMPLIFY=FALSE)
+
+
+	# v <- mapply(listplot,fns,ppcfd,
+	# 	MoreArgs=list(
+	# 		main="homog_%s",
+	# 		formula=.~r,
+	# 		file="ppcf_%s.pdf"
+	# 	))
 }
 	
