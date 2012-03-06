@@ -1,0 +1,94 @@
+\documentclass[12pt,a4paper,oneside,article]{memoir}
+
+% LAYOUT
+\setulmarginsandblock{0.7\uppermargin}{0.8\lowermargin}{*}
+\usepackage{mylayout}
+
+
+% LANGUAGE AND FONT
+\setmainlanguage{english}
+\setmainfont[Ligatures={TeX},Mapping={tex-text},Numbers={OldStyle}]{Linux Libertine O}
+\setmonofont[Scale=0.8]{DejaVu Sans Mono}
+
+% PDF SETUP
+\usepackage[unicode,bookmarks, colorlinks, breaklinks,
+pdftitle={S-114.4202: Exercise report},
+pdfauthor={Ville Väänänen},
+pdfproducer={xetex}
+]{hyperref}
+\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=MidnightBlue} 
+\usepackage{mcode}
+
+\usepackage[shadow]{todonotes}
+
+% MATH
+\usepackage{mymath}
+\everymath{\displaystyle}
+
+
+\newcommand{\Th}{\gv{\theta}}
+\newcommand{\LH}{\Pdf{\v{Y}}{\Th}}
+\newcommand{\LHf}[1]{\Pdf{\v{Y}}{#1}}
+\newcommand{\LHh}{\Pdf{\v{Y}}{\hat{\Th}}}
+\newcommand{\lLH}{L\!\left(\Th\right)}
+\newcommand{\cLH}{\Pdf{\v{X},\v{Y}}{\Th}}
+\newcommand{\lcLH}{\log\cLH}
+\newcommand{\LB}{\mathcal{L}}
+\newcommand{\Lb}{\mathfrak{L}}
+\newcommand{\KL}[2]{\mathrm{KL}\left(#1\|#2\right)}
+
+
+\newcommand{\course}{S-114.4202}
+\newcommand{\coursename}{Special Course in Computational Engineering II}
+\newcommand{\duedate}{\today}
+\newcommand{\studentid}{63527M}
+\renewcommand{\title}{Bear and wolf populations in Finland}
+\author{Ville Väänänen}
+
+% SECTION NUMBERING
+%\setsecnumdepth{subsubsection}
+\counterwithout{section}{chapter}
+%\renewcommand{\thesubsubsection}{\thesubsection{\large\scshape\alph{subsubsection}}}
+%\titleformat{\subsubsection}{\large\scshape}{\alph{subsubsection} )}{10pt}{}
+%\titleformat{\section}{\Huge}{\thesection}{10pt}{}
+%\titleformat{\subsection}{\Large}{\thesubsection}{10pt}{}
+
+
+% BIBLIOGRAPHY
+\usepackage[hyperref=true,backend=biber]{biblatex} % TEXLIPSE BUG: backend cannot be first
+%\addbibresource{SSM_PE.bib}
+
+
+\checkandfixthelayout
+
+\begin{document}
+
+
+\mytitlepage
+
+\section{Data description}
+
+The bear and wolf observations for the year 2009 are plotted in figure~\ref{fig:bw_2009}.
+As can be seen, there is some clustering which has to be associated with increased
+probability of reporting due population density. Thus an interesting problem is,
+how should we take into account the probability for an animal to get observed
+in a given area? Is it directly proportional to population density? Is there some
+other factors associated such as the amount of hunters in the area?
+
+\begin{figure}[htbp]
+  \begin{adjustwidth}{-2in}{-2in}
+	  \centering
+	  \subfloat[Bear]{\label{fig:bear}\includegraphics[width=0.6\textwidth]{bear_2009}}
+	  \subfloat[Wolf]{\label{fig:wolf}\includegraphics[width=0.6\textwidth]{wolf_2009}}
+  \end{adjustwidth}
+  \caption{Bear and wolf observations in 2009}
+  \label{fig:bw_2009}
+\end{figure}
+
+\section{Methods}
+
+\section{Results}
+
+\section{Conclusion}
+
+\end{document}
