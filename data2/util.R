@@ -3,6 +3,7 @@ require("spdep")
 require("RColorBrewer")
 require("spatstat")
 require("INLA")
+require("splancs")
 
 jet.colors <-
   colorRampPalette(c("#00007F", "blue", "#007FFF", "cyan",

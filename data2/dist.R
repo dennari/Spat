@@ -18,8 +18,8 @@ for(i in 1:N) {
 	#  	dist[i,j] = sqrt((mi[1]-mj[1])^2+(mi[1]-mj[1])^2)
 	# }
 }
-d <- as.matrix(dist(mns))
-d[d==0]=NA
+#d <- as.matrix(dist(mns))
+#d[d==0]=NA
 c <- vector("integer",N)
 c[1] <- 1
 coords <- sp1[[c[1]]][nrow(sp1[[c[1]]]):1,]

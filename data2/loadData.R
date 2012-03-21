@@ -1,7 +1,7 @@
 kunnat <- readShapeSpatial("map45/HallintoAlue45Milj_ETRS.shp")
 #kraj <- readShapeSpatial("map45/HallintoalueRaja45Milj_ETRS.shp",verbose=TRUE)
 #kraj <- kraj[kraj@data$Kohdeluokk==82100|kraj@data$Kohdeluokk==84111,]
-#city <- readShapeSpatial("map/cityp.shp")
+city <- readShapeSpatial("map/cityp.shp")
 # turn the factor to numeric vector
 kunnat@data$Kunta <- as.numeric(as.vector(kunnat@data$Kunta))
 hcont <- readShapeSpatial("map45/hcont_l.shp")
@@ -36,7 +36,7 @@ kunnat_cnt <- coordinates(kunnat)
 cov.pdens <- as.data.frame(cbind(
 				kunta=kunnat@data$Kunta,
 				x=kunnat_cnt[,1],
-				y=kunnat_cnt[,1],
+				y=kunnat_cnt[,2],
 				pdens=pdens))
 
 pdensbins <- c(0,1,5,10,20,50,100,1000,Inf)
