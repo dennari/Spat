@@ -1,13 +1,13 @@
 
-exportFigs <- 0
-displayFigs <- 1
+exportFigs <- 1
+displayFigs <- 0
 
-plots.obs <- FALSE
-plots.mesh <- FALSE
-plots.results <- TRUE
+plots.obs <- TRUE
+plots.mesh <- TRUE
+plots.results <- FALSE
 
 run.mesh <- TRUE
-run.INLA <- TRUE
+run.INLA <- FALSE
 
 source("util.R",local=TRUE)
 if(1 | !exists("kunnat")) {
@@ -58,12 +58,12 @@ if(run.mesh) {
 
 loc <- as.matrix(obs.y2010)
 loc <- loc[!duplicated(loc[,c("x","y")]),]
-#loc <- loc[sample.int(min(2000,nrow(loc))),]
+loc <- loc[sample.int(min(2000,nrow(loc))),]
 
 ##############################
 #### COVARIATES ##############
 ##############################
-distmat <- crossdist(loc[,"x"],loc[,"y"],cov.pdens[,"x"],cov.pdens[,"y"])
+distmat <- crossdist(mesh$loc[,1],mesh$loc[,1],cov.pdens[,"x"],cov.pdens[,"y"])
 cov.pdens <- cov.pdens[apply(distmat,1,which.min),"pdens"]
 
 #loc <- loc[loc[,1] < 0.17,]
@@ -118,10 +118,10 @@ if(run.INLA) {
 
 	fake_data <- c(rep(0,nV),rep(1,nData)) #Put a zero where there aren't observations and a 1 where there is a point
 
-	formula <- y ~ 1  + f(idx, model=spde) #Basic latent model - feel free to add covariates etc
+	formula <- y ~ 1 + pdens + f(idx, model=spde) #Basic latent model - feel free to add covariates etc
 
 
-	data <- list(y=fake_data,idx = c(1:nV)) #put hte data in
+	data <- list(y=fake_data,idx = c(1:nV),pdens=cov.pdens) #put hte data in
 
 	#The INLA call.  Likelihood is Poisson with Observation Matrix and appropriate value fo E.
 	#result = inla(formula, data=data, family="poisson",
@@ -132,13 +132,13 @@ if(run.INLA) {
 	kappa = sqrt(8)/range.approx
 	tau = 1/(4*pi*kappa^2*sigma2.approx)^0.5
 
-	init.mode = c(-5.5, 3) # works
+	#init.mode = c(-5.5, 3) # works
 	#init.mode = c(-8, 5.5) # works
 	#init.mode = c(-4.905784,6.317846)
 	#init.mode = c(log(tau), log(kappa^2))
 	#init.mode = c(-1.304829,2.717723)
 
-	control.mode = list(theta = init.mode, restart=TRUE)
+	#control.mode = list(theta = init.mode, restart=TRUE)
 
 #The INLA call.  Likelihood is Poisson with Observation Matrix and appropriate value fo E.
 result =
@@ -300,7 +300,7 @@ if(plots.obs) {
 
 	oranges <- sapply(brewer.pal(8,"Oranges"),function(c) {addAlpha(c,0.7)})
 
-	rajj <- list("sp.lines", map, col = "#0000ff50")
+	rajj <- list("sp.lines", map, col = "#0000ff70")
 	pt <- list(
 			"b2010"=list(
 				"sp.points", 
@@ -325,14 +325,38 @@ if(plots.obs) {
 					cex=0.5)
 			)
 
+	# plot the points
+	
+pnel <- function() {
+    #panel.levelplot(...)
+    panel.lines(map,col="#0000ffff")
+}
 
-	pl_b10 <- mapply(listplot,
-			names(pt),
-			rep(list(kunnat),4),
-			sp.layout=mapply(list,pt,rep(list(rajj),4),SIMPLIFY=FALSE),
-			MoreArgs=list(
+	myplot(y~x,
+		obs.y2010,
+		file="report/b2010.pdf",
+		plotfn=xyplot,
+		#panel=panel.lines(map,col="#0000ffff"),
+		width=5,
+		#height=5/wh,
+		afterfn=function(p,k) {
+					trellis.par.set(axis.line=list(col=NA))
+					print(p)
+		},
+		mar=mar_tight,
+		main="",
+		col="#00000050",
+		pch=16,
+		aspect="iso",
+		settings=theme.novpadding
+	)
+
+
+	# plot the population density
+	pl_b10 <- myplot(kunnat,
+			sp.layout=list(rajj),
 				plotfn=spplot,
-				file="report/%s.pdf",
+				file="report/pdens.pdf",
 				width=3,
 				height=5.5,
 				afterfn=function(p,k) {
@@ -345,9 +369,9 @@ if(plots.obs) {
 				zcol="pdens_binned",
 				col.regions=oranges,
 				col="transparent",
-				colorkey=FALSE,
+				colorkey=TRUE,
 				pretty=TRUE
-			))
+			)
 	}
 }
 
