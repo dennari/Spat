@@ -24,6 +24,38 @@ pdfproducer={xetex}
 \usepackage{mymath}
 \everymath{\displaystyle}
 
+\usepackage{listings}
+\lstset{ %
+	language=R,                % choose the language of the code
+	basicstyle=\footnotesize\ttfamily,% the size of the fonts that are used for the code 
+	numbers=none,                   % where to put the line-numbers
+	numberstyle=\footnotesize\ttfamily,      % the size of the fonts that are usedfor the line-numbers 
+	stepnumber=5,                   % the step between two line-numbers. If it's 1 each line 
+	aboveskip=2\medskipamount,
+	belowskip=2\medskipamount,                                % will be numbered
+	numbersep=-5pt,                  % how far the line-numbers are from the code
+	backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+	showspaces=false,               % show spaces adding particular underscores
+	showstringspaces=false,         % underline spaces within strings
+	showtabs=false,                 % show tabs within strings adding particular underscores
+	frame=l,
+	framesep=0pt,
+	framexleftmargin=2mm,
+	rulecolor=\color{light-gray},	                % adds a frame around the code
+	tabsize=2,	                % sets default tabsize to 2 spaces
+	caption=,
+	captionpos=t,                   % sets the caption-position to bottom
+	breaklines=true,                % sets automatic line breaking
+	breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+	emptylines=*1,
+	keywordstyle=\color[rgb]{0,0,1},          % keywords in blue
+    commentstyle=\color[gray]{.5}\itshape,               % comments
+    stringstyle=\color[rgb]{.627,.126,.941},   % strings in purple
+	%title=\lstname,                 % show the filename of files included with
+	                                % also try caption instead of title
+	escapeinside={\%*}{*)},         % if you want to add a comment within your code
+            % if you want to add more keywords to the set
+}
 
 \newcommand{\Th}{\gv{\theta}}
 \newcommand{\LH}{\Pdf{\v{Y}}{\Th}}
@@ -224,13 +256,17 @@ as
 where $[\v{A}_1]_{ij}=\phi_j(\hat{\v{s}}_i)$, $[\v{A}_2]_{kj}=\phi_j(\v{s}_k)$ and
 $C$ is an unimportant constant. 
 
-  
 
 \section{Results}
 
 \section{Conclusion}
-
+\clearpage
 \printbibliography
 \clearpage
+\appendix
+\section{R-code}
+\lstinputlisting{../script.R}
+\lstinputlisting{../loadData.R}
+\lstinputlisting{../dist.R}
 
 \end{document}
