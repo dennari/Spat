@@ -127,33 +127,34 @@ Cox processes
 are a broad class of point processes that are nonhomogoneous Poisson processes given
 a \emph{latent random intensity field} $\lambda(\v{s})$. Throughout the report, we will denote 
 vectors and vector valued functions with bold lower-case symbols and matrices with bold
-upper case symbols. We will denote a \emph{spatial point process} defined in some bounded region $\Omega\subset\R^2$, 
-also called the \emph{observation window}, with $\mathcal{Y}(\v{s})$ where $\v{s}\in\Omega$.
+upper case symbols. We will denote a \emph{spatial point process}, defined in some bounded region
+$\Omega\subset\R^2$, with $\mathcal{X}$. A spatial point process can be considered a 
+\emph{random finite subset} of, in this case, $\Omega$ \cite{Moller2007}. It is usually observed
+in some bounded observation window $W\subset\Omega$.
 A realisation of a point process is called a \emph{point pattern}
 \begin{align}
-	\v{y}=\left[\mathcal{Y}(\v{s}_1),\dots,\mathcal{Y}(\v{s}_n)\right]^T,
+	\mathcal{X}_W=\left\{\v{x}_1,\dots,\v{x}_n\right\},
 	\label{eq:point_pattern}
 \end{align}
-that can be thought of as an $n$ dimensional random vector governed by a well defined
-multivariate distribution \cite{Gelfand2010}. It is important to realise that
-the elements of $\v{y}$ belong to some abstract sample space, i.e. bears or wolves
-in case of this report \cite{Gelfand2010}. Also, \eqref{eq:point_pattern}
-implicitly defines a matrix $\v{S}=\left[\v{s}_1, \dots, \v{s}_n\right]$ of
-point locations.
+where the points $\v{x}_k\in W$. 
+The distribution of $\mathcal{X}$ can be defined by specifying the distribution of
+the number of points $N(\mathcal{X})$ and then the joint distribution of the $n$ points given
+$N(\mathcal{X})=n$. Equivalently one can specify the distribution of $N(D)$, that is
+is the number of points of $\mathcal{X}$ in any subset $D\subset \Omega$. 
 
-Going back to Cox processes, given the intensity field, the number of points $N(D)$ inside a region $D\subset\Omega$ 
-is a Poisson distributed random variable with mean $\Lambda(D)=\defint{D}{}{\lambda(\v{s})}{\v{s}}$, i.e.
+Going back to Cox processes, given the random intensity field, the number of points $N(D)$ inside a region
+$D\subset\Omega$ is a Poisson distributed random variable with mean $\Lambda(D)=\defint{D}{}{\lambda(\v{s})}{\v{s}}$, i.e.
 \begin{align}
-	\Pdf{N(D)=k}{\Lambda(D)}=\frac{\Lambda(D)^k}{k!}e^{-\Lambda(D)^k}.
+	\Pdf{N(D)=k}{\Lambda(D)}=\frac{\Lambda(D)^k}{k!}e^{-\Lambda(D)}.
 	\label{eq:poisson}
 \end{align}
 In a log-Gaussian Cox process, the latent intensity field has the form
 \begin{align}
-	\lambda(\v{s})&=\exp\left(Z(\v{s})\right)
+	\lambda(\v{s})&=\exp\left(Z(\v{s})\right),\;\v{s}\in\R^2
 	\label{eq:lambda_lgcp}
 \end{align}
 where $Z$ is a \emph{Gaussian random field} (also called a Gaussian process, GP) defined by a 
-mean function $\mu(\v{s})$ and a covariance function $Q(\v{s},\v{s}')$ \cite{Moller2007}. 
+mean function $\mu(\v{s})$ and a covariance function $c(\v{s},\v{s}')$ \cite{Moller2007}. 
 In this report
 a linear model will be used for the mean function, i.e
 \begin{align}
