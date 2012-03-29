@@ -121,13 +121,16 @@ other factors associated such as the amount of hunters in the area?
 
 \section{Methods}
 
-\subsection{Cox processes}
 
-Cox processes
-are a broad class of point processes that are nonhomogoneous Poisson processes given
-a \emph{latent random intensity field} $\lambda(\v{s})$. Throughout the report, we will denote 
-vectors and vector valued functions with bold lower-case symbols and matrices with bold
-upper case symbols. We will denote a \emph{spatial point process}, defined in some bounded region
+\subsection{Poisson process}
+
+Poisson processes are considered the \emph{null} model in spatial 
+point process statistics, since they exhibit \emph{complete spatial randomness} (CSR).
+This means, that given the intensity field $\lambda(\v{s})$, the points of the process 
+in two disjoint areas are indepedent.
+
+Throughout the report, we will denote  vectors and vector valued functions with bold lower-case symbols and matrices
+with bold upper case symbols. We will denote a \emph{spatial point process}, defined in some bounded region
 $\Omega\subset\R^2$, with $\mathcal{X}$. A spatial point process can be considered a 
 \emph{random finite subset} of, in this case, $\Omega$ \cite{Moller2007}. It is usually observed
 in some bounded observation window $W\subset\Omega$.
@@ -138,30 +141,46 @@ A realisation of a point process is called a \emph{point pattern}
 \end{align}
 where the points $\v{x}_k\in W$. 
 The distribution of $\mathcal{X}$ can be defined by specifying the distribution of
-the number of points $N(\mathcal{X})$ and then the joint distribution of the $n$ points given
-$N(\mathcal{X})=n$. Equivalently one can specify the distribution of $N(D)$, that is
-is the number of points of $\mathcal{X}$ in any subset $D\subset \Omega$. 
+the number of points $N(\Omega)$ (which we will also denote $N(\mathcal{X})$) and then the joint distribution of the $n$
+points given $N(\Omega)=n$. Equivalently one can specify the distribution of $N(D)$, that is
+is the number of points of $\mathcal{X}$ in any subset $D\subset \Omega$.
 
-Going back to Cox processes, given the random intensity field, the number of points $N(D)$ inside a region
-$D\subset\Omega$ is a Poisson distributed random variable with mean $\Lambda(D)=\defint{D}{}{\lambda(\v{s})}{\v{s}}$, i.e.
+For the Poisson process we have
 \begin{align}
-	\Pdf{N(D)=k}{\Lambda(D)}=\frac{\Lambda(D)^k}{k!}e^{-\Lambda(D)}.
+	\PPdf{N(D)=k}{\lambda}=\frac{\Lambda(D)^k}{k!}e^{-\Lambda(D)},
 	\label{eq:poisson}
 \end{align}
-In a log-Gaussian Cox process, the latent intensity field has the form
+where $\Lambda(D)=\defint{D}{}{\lambda(\v{s})}{\v{s}}$. Then, given the number of points,
+the points are i.i.d so that the density is proportional to the intensity function. The joint distribution
+of the number of points and the points, i.e. the likelihood, is then given by
 \begin{align}
-	\lambda(\v{s})&=\exp\left(Z(\v{s})\right),\;\v{s}\in\R^2
+	\PPdf{\mathcal{X}}{\lambda}&=\PPdf{N(\mathcal{X})=n}{\lambda}\prod_{i=1}^n\frac{\lambda(\v{x}_i)}{\Lambda(\Omega)}
+	\nonumber\\
+	&=\frac{\Lambda(\Omega)^n}{n!}e^{-\Lambda(\Omega)}\prod_{i=1}^n\frac{\lambda(\v{x}_i)}{\Lambda(\Omega)} \nonumber\\
+	&\propto \exp\left( -\defint{\Omega}{}{\lambda(\v{s})}{\v{s}} \right)\prod_{i=1}^n \lambda(\v{x}_i)
+	\label{eq:poisson_lh}
+\end{align}
+
+
+\subsection{Cox processes}
+
+Cox processes are a flexible family of point processes described by a 
+\emph{random} intensity field. Thus they are also called doubly stochastic.
+Given the random intensity field, a Cox process is a Poisson process.
+In a log-Gaussian Cox process, the random latent intensity field has the form
+\begin{align}
+	\lambda(\v{s})&=e^{Z(\v{s})},\;\v{s}\in\R^2
 	\label{eq:lambda_lgcp}
 \end{align}
-where $Z$ is a \emph{Gaussian random field} (also called a Gaussian process, GP) defined by a 
+where $Z$ is a \emph{Gaussian random field} (also called a Gaussian process, $\mathcal{GP}$) defined by a 
 mean function $\mu(\v{s})$ and a covariance function $c(\v{s},\v{s}')$ \cite{Moller2007}. 
 In this report
 a linear model will be used for the mean function, i.e
 \begin{align}
-	\E{\log\lambda(\v{s})}&=\gv{\beta}^T\v{z},
+	\mu(\v{s})&=\gv{\beta}^T\v{b}(\v{s}),
 	\label{eq:lambda_mean}
 \end{align}
-where typically $z_1(\v{s})=1$, so that $\beta_1$ is the intercept. With this definition, possible
+where typically $b_1(\v{s})=1$, so that $\beta_1$ is the intercept. With this definition, possible
 covariate data can be included directly in $\v{z}$. 
 
 % The complete set of unknown parameters in our model
@@ -175,42 +194,49 @@ covariate data can be included directly in $\v{z}$.
 
 Our aim is to be able to use a computationally efficient Bayesian procedure for inference
 in latent Gaussian models called INLA (or integrated nested Laplace approximations) \cite{Rue2009}.
-Latent Gaussian models are a large set of flexible models, where given a realisation $\v{x}$ 
-of a latent (unobserved) Gaussian random field the observations $\v{y}$ are independent and identically
-distributed. 
+Latent Gaussian models are a large set of flexible models, where given a latent (unobserved) Gaussian 
+random field the observations $\v{y}$ are independent and identically distributed with
+an exponential family distribution \cite{Rue2009}. 
 More precisely we have
 \begin{align}
-	Z(\v{s})|\gv{\theta}&\sim \mathcal{GP}(\mu(\v{s},\gv{\theta}),Q(\v{s},\v{s}',\gv{\theta})\\
+	Z(\v{s})|\gv{\theta}&\sim \mathcal{GP}(\mu(\v{s},\gv{\theta}),Q(\v{s},\v{s}',\gv{\theta}))\\
 	\v{y}|Z(\v{s}),\gv{\theta}&\sim \prod_{k=1}^n \Pdf{y_k}{Z(\v{s}),\gv{\theta}} \label{eq:latent_gaussian_clh}
 \end{align} 
-Here we have introduced the hyperparameter $\gv{\theta}$. It is worth noting that
-in this vector notation $\v{x}$ has to be thought of as belonging to an infinite
-dimensional Hilbert space. 
+In general, it is the posterior distribution of $Z(\v{s})$ and also of the parameters $\v{\theta}$ that
+we are interested in. We shall not venture deeper into how these are approximated in the INLA framework,
+but it suffices to be able to evaluate the likelihood, given a realisation of the field and the parameters.
+
 
 \subsection{Likelihood approximation}
 
-LGCP's can be thought of as latent Gaussian models and in their case the logarithm of the 
-conditional likelihood function
-\eqref{eq:latent_gaussian_clh} can be written as \cite{Moller2007,Gelfand2010,Simpson2011} (going further, dependence on the hyperparameter
-will be suppressed but is assumed)
+LGCP's can be thought of as latent Gaussian models and their likelihood
+is of the form \eqref{eq:poisson_lh}, with the random intensity field \eqref{eq:lambda_lgcp}.
+Commonly one places a regular grid over the observation window, and counts
+the number of points $y_i$ in the cell $C_i$ with area $\abbs{C_i}$. Then if we assume
+that the field is constant in a cell, we have
 \begin{align}
-	\log\Pdf{\v{y}}{Z}&= \abs{\Omega}-\defint{\Omega}{}{e^{Z(\v{s})}}{\v{s}}+\sum_{k=1}^n Z(\v{s}_k)
-	\label{eq:lgcp_clh}
-\end{align} 
-Unfortunately \eqref{eq:lgcp_clh} cannot be evaluated without first forming some kind of
-approximation to the latent random field $Z(\v{s})=\log \lambda(\v{s})$. With the help of such an approximation, the last term requires
-just the evaluation of the approximated field in the observed locations. Since the integral of the intensity
-function over the observation window (i.e. the mean number of points in the pattern) will remain 
-analytically intractable it will be computed numerically \cite{Simpson2011}.
+	y_i\sim Poisson(\abbs{C_i}e^{Z(c_i)}), 
+	\label{eq:grid_approx_single}
+\end{align}
+and
+\begin{align}
+	\PPdf{\v{y}}{\v{z}}\propto \exp\left(-\sum_{i=1}^m\abbs{C_i}e^{z_i}\right)\prod_{i=1}^m
+	\left(\abbs{C_i}e^{z_i}\right)^{y_i},
+	\label{eq:grid_approx}
+\end{align}
+where $c_i$ is chosen to be some representative point of the cell, where the field is evaluated.
+As the field is evaluated in a discrete set of points $c_i$, the vector $\v{z}=\left[Z(c_1),\dots,Z(c_m)\right]$
+is jointly Gaussian and the problem is reduced into a rather standard one \cite{Simpson2011}.
 
-A common approach for approximating the conditional likelihood is to partition the observation window
-to a regular grid and assume the field constant inside a grid cell. The value chosen for a cell
-can $c_{k}$ be for example the value of the field in the cell's center point $\v{c}_k$. Clearly in this case
-the number of points in a grid cell is Poisson distributed with mean $\abs{c_{k}}e^{Z(\v{c}_k)}$.
-As argued in \cite{Simpson2011} it is far from optimal to use the grid both for approximating
-the intensity field \emph{and} the locations of the points $y_k$. A nicer alternative would be to 
-form a finite dimensional \emph{continous} approximation to the field, so that it could be evaluated at 
-the exact point locations.
+From the point of view of the exact likelihood \eqref{eq:poisson_lh}, \eqref{eq:grid_approx}
+has been obtained by approximating the integral in \eqref{eq:poisson_lh} with a Riemann sum
+over the regular grid and binning the data to the locations $c_i$. Clearly this approximation
+turned the instractable likelihood \eqref{eq:poisson_lh} into a product of independent Poisson densities. 
+However, as argued in \cite{Simpson2011}, it is far from optimal to use the grid both for approximating the intensity
+field \emph{and} the points.
+A nicer alternative would be to 
+form a finite dimensional \emph{continous} approximation to the field, that could be evaluated at 
+the exact point locations and integrated on a \emph{mesh} that is only used for that purpose.
 
 This can be achieved by forming a piecewise linear basis function approximation to $Z(\v{s})$
 \begin{align}
@@ -218,9 +244,9 @@ This can be achieved by forming a piecewise linear basis function approximation 
 	&=\v{z}^T\gv{\phi}(\v{s})
 	\label{eq:field_approximation}
 \end{align}
-The details of this approximation are laid out in \cite{Simpson2011a} and only the results
-will be stated here. First of all, computational efficiency leads us to only consider \emph{Markovian}
-Gaussian random fields, and it turns out that a subset of the Gaussian random fields
+The details of this approximation are laid out in \cite{Lindgren2010} and \cite{Simpson2011a} 
+and only the results will be stated here. First of all, computational efficiency leads us to only consider
+\emph{Markovian} Gaussian random fields, and it turns out that a subset of the Gaussian random fields
 with the \emph{Matérn} covariance functions has the spatial Markov property. 
 The Matérn covariance functions are functions of only the distance $r=\|\v{s}-\v{s'}\|$
 between two points
@@ -232,19 +258,41 @@ where $K_{\nu}(\cdot)$ is the modified Bessel function of the second kind, $\nu>
 the smoothing parameter, $\kappa > 0$ is the range parameter and $\sigma^2$ is the variance.
 The Matérn fields have the Markov property when $\alpha=\nu+\frac{d}{2}$ is an integer. In our case
 we have $d=2$ and we will choose $\nu=3$, so that $\alpha=2$. The piecewise linear basis functions
-will be defined on a triangulated mesh of the observation window, so that the value of
+are defined on a triangulated mesh of the observation window, so that the value of
 $\phi_i(\v{s})$ is $1$ on vertex $i$ and goes linearly to zero on the neighboring vertices.
+The mesh is illustrated in figure~\ref{fig:mesh}. Second, the random vector $\v{z}$ has
+a joint Gaussian distribution with a \emph{sparse} precision matrix and so
+$\v{z}$ is an example of a Gaussian Markov random field (GMRF). This means that
+evaluating the field is extremely fast.
 
-The integral in \eqref{eq:lgcp_clh} is approximated with a sum using a simple
-deterministic numerical integration scheme with weights $w_i$ and sigma
-points $\hat{\v{s}}_i$, so that the approximation to the integral of some function $f$
+The integral in \eqref{eq:poisson_lh} is approximated with a sum using a simple
+deterministic numerical integration scheme with weights $\tilde{\alpha}_i$ and sigma
+points $\tilde{\v{s}}_i$, so that the approximation to the integral of some function $f$
 over the domain $\Omega$ is given by
 \begin{align}
-	\defint{\Omega}{}{f(\v{s})}{\v{s}}\approx \sum_{i=1}^p w_i\;f(\hat{\v{s}}_i)
+	\defint{\Omega}{}{f(\v{s})}{\v{s}}\approx \sum_{i=1}^p \tilde{\alpha}_i\;f(\tilde{\v{s}}_i)
 	\label{eq:integ_approx_general}
 \end{align}
 Examples of such numerical integration rules are the well known midpoint rule, trapezoid rule and 
 and the Simpson's rule (f is interpolated with a polynomial of order $0$, $1$ or $2$ respectfully).
+
+The main difference to the grid approximation \eqref{eq:grid_approx} is that
+the sigma points and the observations corresponding to the point pattern points now differ.
+The likelihood approximation can however be written as a product of independent Poisson likelihoods
+also in this case just by considering what constitutes the set of observations $\v{y}$. 
+Let 
+\begin{align}
+	\v{y}&=[\v{0}_{p\times 1}^T, \v{1}_{n\times 1}^T]^T\\
+	\gv{\alpha}&=[\alpha_1,\dots,\alpha_p, \v{0}_{n\times 1}^T]^T\\
+	\v{z}&=[\hat{Z}(\tilde{\v{s}}_1),\dots,\hat{Z}(\tilde{\v{s}}_n),\hat{Z}(\v{x}_1),\dots,\hat{Z}(\v{x}_n)]^T,
+	\label{eq:vectors}
+\end{align}
+then
+\begin{align}
+	\PPdf{\v{y}}{\v{z}}\propto \exp\left(-\sum_{i=1}^{n+p}\tilde{\alpha}_i e^{z_i}\right)\prod_{i=1}^{n+p}
+	\left(\tilde{\alpha}_i e^{z_i}\right)^{y_i}
+	\label{eq:mesh_approx}
+\end{align}
 
 Putting all this together, the approximation to the conditional log-likelihood is given
 as
@@ -257,6 +305,7 @@ as
 where $[\v{A}_1]_{ij}=\phi_j(\hat{\v{s}}_i)$, $[\v{A}_2]_{kj}=\phi_j(\v{s}_k)$ and
 $C$ is an unimportant constant. 
 
+\placefig{mesh}{0.6}{The mesh over the observation window, which is the land area of Finland.}
 
 \section{Results}
 
