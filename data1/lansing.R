@@ -4,7 +4,7 @@ exportFigs <- 1
 displayFigs <- 0
 interaction <- 1
 speciesinteraction <- 1
-intensity <- 0
+intensity <- 1
 ppcf <- 1
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
 nsim <- 3
@@ -297,8 +297,8 @@ print("RANDOMLABELING")
 			rep(list(nlansing),2),
 			rep(list(Ldif),2),
 			i=c("oak","maple"),
-			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 			MoreArgs=list(
+				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 				simulate = Ls1,
 				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)
