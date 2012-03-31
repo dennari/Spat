@@ -4,7 +4,7 @@ exportFigs <- 1
 displayFigs <- 0
 interaction <- 1
 speciesinteraction <- 1
-intensity <- 1
+intensity <- 0
 ppcf <- 1
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
 nsim <- 999
@@ -140,7 +140,7 @@ print("INTERACTION")
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500)
 		),SIMPLIFY=FALSE)
 	LsErr <-lapply(Ls,envs.typeIerror)
-
+	print(LsErr)
 	dens <- density(split(nlansing),
 		sigma=sigma)
 	
@@ -159,7 +159,7 @@ print("INTERACTION")
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500)
 		),SIMPLIFY=FALSE)
 	LsiErr <-lapply(Lsi,envs.typeIerror)
-
+	print(LsiErr)
 	nms <- names(c(Lssi,Lss))
 
 
@@ -209,7 +209,7 @@ print("SPECIESINTERACTION")
 			correction="Ripley",
 			savepatterns=TRUE)	
 	Ls1Err <-envs.typeIerror(Ls1)		
-
+	print(Ls1Err)
 	Ls2 <- mapply(
 			envelope,
 			rep(list(nlansing),2),
@@ -222,7 +222,7 @@ print("SPECIESINTERACTION")
 				simulate=Ls1
 			),SIMPLIFY=FALSE)	
 	Ls2Err <-lapply(Ls2,envs.typeIerror)
-
+	print(Ls2Err)
 	csrd <- c(list(Ls1),Ls2)
 	
 	csrp <- mapply(listplot,fns,csrd,
@@ -260,7 +260,7 @@ print("IOC")
 			simulate = expression(rshift(nlansing)),
 			savepatterns=TRUE)
 		Ls3Err <-envs.typeIerror(Ls3)	
-
+		print(Ls3Err)
 	Ls4 <- mapply(
 			envelope,
 			rep(list(nlansing),2),
@@ -273,7 +273,7 @@ print("IOC")
 				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)
 	Ls4Err <-lapply(Ls4,envs.typeIerror)	
-	
+	print(Ls4Err)
 	iocd <- c(list(Ls3),Ls4)
 
 	iocp <- mapply(listplot,fns,iocd,
@@ -309,7 +309,7 @@ print("RANDOMLABELING")
 			simulate = expression(rlabel(nlansing)),
 			savepatterns=TRUE)
 	Ls5Err <-envs.typeIerror(Ls5)	
-
+	print(Ls5Err)
 	Ls6 <- mapply(
 			envelope,
 			rep(list(nlansing),2),
@@ -321,7 +321,7 @@ print("RANDOMLABELING")
 				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)
 	Ls6Err <-lapply(Ls6,envs.typeIerror)
-	
+	print(Ls6Err)
 	rld <- c(list(Ls5),Ls6)	
 	
 	rlp <- mapply(listplot,fns,rld,
@@ -373,7 +373,7 @@ print("PPCF")
 				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)
 	ppcfdiErr <-lapply(ppcfdi,envs.typeIerror)
-
+	print(ppcfdiErr)
 	v <- mapply(listplot,fns[1:3],ppcfdi[1:3],
 		MoreArgs=list(
 			main="",
