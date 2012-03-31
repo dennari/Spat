@@ -1,0 +1,13 @@
+*synctex*
+*.log
+*.toc
+*.out
+*.bbl
+*.aux
+*.blg
+.*
+*.*~
+/material
+bibl
+tmp
+!.gitignore
