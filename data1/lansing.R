@@ -1,13 +1,13 @@
 # Lansing wood data analysis
-
+options(error=dump.frames)
 exportFigs <- 1
 displayFigs <- 0
 interaction <- 1
 speciesinteraction <- 1
-intensity <- 1
+intensity <- 0
 ppcf <- 1
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
-nsim <- 1999
+nsim <- 3
 
 require("spatstat");
 require("RColorBrewer")
@@ -116,14 +116,14 @@ if(intensity) {
 }
 
 if(interaction) {
-	
+print("INTERACTION")	
 
 	snlansing <- split(nlansing)	
 
 	Lss <- list(oak=snlansing$oak,hm=hm,all=nlansing)
 	Ls <- mapply(envelope,Lss,list(Lest,Lest,Lest),
 		MoreArgs=list(
-			nsim=nsim,
+			nsim=nsim,savefuns=TRUE,
 			correction="Ripley",
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500)
 		),SIMPLIFY=FALSE)
@@ -139,7 +139,7 @@ if(interaction) {
 		list(Linhom,Linhom),
 		simulate=list(expression(rpoispp(dens$maple)),expression(rpoispp(dens$hickory))),
 		MoreArgs=list(
-			nsim=nsim,
+			nsim=nsim,savefuns=TRUE,
 			correction="Ripley",
 			normpower=2,
 			sigma=sigma,
@@ -167,7 +167,7 @@ if(interaction) {
 }
 
 if(speciesinteraction) {
-	
+print("SPECIESINTERACTION")	
 	legendfn <- function(p,k) {
 				legend(
 					'topright',
@@ -192,7 +192,7 @@ if(speciesinteraction) {
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 			i=i[1],
 			j=j[1],
-			nsim=nsim,
+			nsim=nsim,savefuns=TRUE,
 			correction="Ripley",
 			savepatterns=TRUE)	
 			
@@ -205,7 +205,7 @@ if(speciesinteraction) {
 			j=j[2:3],
 			MoreArgs=list(
 				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
-				nsim=nsim,
+				nsim=nsim,savefuns=TRUE,
 				simulate=Ls1
 			),SIMPLIFY=FALSE)	
 	csrd <- c(list(Ls1),Ls)
@@ -226,6 +226,7 @@ if(speciesinteraction) {
 		),SIMPLIFY=FALSE)	
 	
 	# independence of components
+print("IOC")
 	i <- c("hickory","hickory","maple")
 	j <- c("oak","maple","oak")
 	fns <- mapply(function(i,j){
@@ -239,7 +240,7 @@ if(speciesinteraction) {
 			i=i[1],
 			j=j[1],
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
-			nsim=nsim,
+			nsim=nsim,savefuns=TRUE,
 			correction="Ripley",
 			simulate = expression(rshift(nlansing)),
 			savepatterns=TRUE)	
@@ -253,7 +254,7 @@ if(speciesinteraction) {
 			MoreArgs=list(
 				simulate = Ls1,
 				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
-				nsim=nsim
+				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)	
 	
 	iocd <- c(list(Ls1),Ls)
@@ -274,6 +275,7 @@ if(speciesinteraction) {
 		),SIMPLIFY=FALSE)	
 
 	# random labeling
+print("RANDOMLABELING")
 	Ldif <- function(X, ..., i) { 
 		Lidot <- Ldot(X, ..., i = i) 
 		L <- Lest(X, ...)
@@ -285,7 +287,7 @@ if(speciesinteraction) {
 			Ldif,
 			i="hickory",
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
-			nsim=nsim,
+			nsim=nsim,savefuns=TRUE,
 			correction="Ripley",
 			simulate = expression(rlabel(nlansing)),
 			savepatterns=TRUE)	
@@ -298,7 +300,7 @@ if(speciesinteraction) {
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 			MoreArgs=list(
 				simulate = Ls1,
-				nsim=nsim
+				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)
 	
 	rld <- c(list(Ls1),Ls)	
@@ -321,7 +323,7 @@ if(speciesinteraction) {
 }
 
 if(ppcf) {
-
+print("PPCF")
 	dens <- density(split(nlansing))
 	# ppcf inhomog
 	bw <- 2.5*bw.stoyan(nlansing)
@@ -349,7 +351,7 @@ if(ppcf) {
 				),
 				correction="Ripley",
 				bw=bw,
-				nsim=nsim
+				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)
 
 
