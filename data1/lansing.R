@@ -1,13 +1,13 @@
 # Lansing wood data analysis
 options(error=dump.frames)
-exportFigs <- 0
+exportFigs <- 1
 displayFigs <- 0
 interaction <- 1
 speciesinteraction <- 1
-intensity <- 0
+intensity <- 1
 ppcf <- 1
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
-nsim <- 3
+nsim <- 999
 
 require("spatstat");
 require("RColorBrewer")
