@@ -1,13 +1,15 @@
 
-exportFigs <- 1
-displayFigs <- 0
+exportFigs <- 0
+displayFigs <- 1
 
-plots.obs <- TRUE
-plots.mesh <- TRUE
-plots.results <- FALSE
+plots.obs <- F
+plots.mesh <- F
+plots.results <- T
 
-run.mesh <- TRUE
-run.INLA <- FALSE
+run.mesh <- T
+run.INLA <- T
+
+
 
 source("util.R",local=TRUE)
 if(1 | !exists("kunnat")) {
@@ -35,7 +37,7 @@ if(run.mesh) {
 	segm.bnd <- inla.mesh.segment(as.matrix(loc.bnd))
 
 	maxedge <- ly/50
-	minedge <- maxedge
+	minedge <- maxedge/1.11  # 20544.2 works for both
 	mesh <- inla.mesh.create(
 	                  ## Data locations:
 	                 bound=segm.bnd,
@@ -55,17 +57,53 @@ if(run.mesh) {
 #### OBSERVATIONS ########
 ##########################
 
-
 loc <- as.matrix(obs.y2010)
-loc <- loc[!duplicated(loc[,c("x","y")]),]
-loc <- loc[sample.int(min(2000,nrow(loc))),]
+#loc <- loc[!duplicated(loc[,c("x","y")]),]
+#loc <- loc[sample.int(min(2000,nrow(loc))),]
+# # discard points that fall outside the window
+bnd.polygon <- mesh$loc[mesh$segm$bnd$idx[,1],1:2]
+bnd.polygon <- bnd.polygon[!duplicated(bnd.polygon[,1:2]),]
 
+loc <- pip(loc,bnd.polygon,bound=FALSE)
+
+
+
+
+
+myplot(bnd.polygon,
+	plotfn=lines,
+	width=4,
+	height=ly/lx*4,
+	xrange=range(mesh$loc[,1]),
+	yrange=range(mesh$loc[,2])
+)
+myplot(mesh$segm$bnd, mesh$loc,
+	plotfn=lines,
+	width=4,
+	height=ly/lx*4,
+	xrange=range(mesh$loc[,1]),
+	yrange=range(mesh$loc[,2])
+)
+#pp <- ppp(mesh$loc[,1],mesh$loc[,2],xrange=range(mesh$loc[,1]),yrange=range(mesh$loc[,2]))
+#loc[t(cbind(segm$idx[idx,, drop=FALSE], NA)), 1]
 ##############################
 #### COVARIATES ##############
 ##############################
-distmat <- crossdist(mesh$loc[,1],mesh$loc[,1],cov.pdens[,"x"],cov.pdens[,"y"])
-cov.pdens <- cov.pdens[apply(distmat,1,which.min),"pdens"]
+#distmat <- crossdist(mesh$loc[,1],mesh$loc[,2],cov.pdens[,"x"],cov.pdens[,"y"])
+#pp <- ppp(mesh$loc[,1],mesh$loc[,2],poly=bnd.polygon,marks=cov.pdens)
+#pp1 <- ppp(loc[,1],loc[,2],poly=bnd.polygon)
+pp2 <- ppp(cov.pdens[,"x"],cov.pdens[,"y"],poly=bnd.polygon,marks=log(cov.pdens[,"pdens"]))
+contdens <- markmean(pp2,dimyx=c(400,400))
+msk <- as.mask(pp2,dimyx=c(400,400))
+pxl <- nearest.raster.point(cov.pdens[,"x"],cov.pdens[,"y"],msk,indices=T)
+vv <- contdens$v[pxl$row,pxl$col]
 
+#distmat <- crossdist(mesh$loc[,1],mesh$loc[,2],contdens$xcol,contdens$yrow)
+
+distmat <- crossdist(mesh$loc[,1],mesh$loc[,2],cov.pdens[,"x"],cov.pdens[,"y"])
+
+
+cov.mesh_pdens <- cov.pdens[apply(distmat,1,which.min),"pdens"]
 #loc <- loc[loc[,1] < 0.17,]
 
 # kappa =0.5
@@ -89,10 +127,9 @@ cov.pdens <- cov.pdens[apply(distmat,1,which.min),"pdens"]
 # loc <- simulate_lgcp(mesh,intercept+sample)
 
 # print(dim(loc)[1])
-# # discard points that fall outside the window
-loc <- pip(loc,coords,bound=FALSE)
 
-plot(mesh)
+#plot.new()
+myplot(mesh)
 points(loc,col="#ff000080",pch=16)
 nV <- mesh$n
 nData <- dim(loc)[1]
@@ -118,10 +155,11 @@ if(run.INLA) {
 
 	fake_data <- c(rep(0,nV),rep(1,nData)) #Put a zero where there aren't observations and a 1 where there is a point
 
-	formula <- y ~ 1 + pdens + f(idx, model=spde) #Basic latent model - feel free to add covariates etc
+	formula <- y ~ 1 + f(idx, model=spde) #Basic latent model - feel free to add covariates etc
+	formulac <- y ~ 1 + pdens + f(idx, model=spde) #Basic latent model - feel free to add covariates etc
 
 
-	data <- list(y=fake_data,idx = c(1:nV),pdens=cov.pdens) #put hte data in
+	data <- list(y=fake_data,idx = c(1:nV),pdens=cov.mesh_pdens) #put hte data in
 
 	#The INLA call.  Likelihood is Poisson with Observation Matrix and appropriate value fo E.
 	#result = inla(formula, data=data, family="poisson",
@@ -141,7 +179,7 @@ if(run.INLA) {
 	#control.mode = list(theta = init.mode, restart=TRUE)
 
 #The INLA call.  Likelihood is Poisson with Observation Matrix and appropriate value fo E.
-result =
+result1 =
     inla(formula, data=data, family="poisson",
          control.predictor=list(A=ObservationMatrix,compute=TRUE),
          E=E_point_process,
@@ -149,10 +187,23 @@ result =
          verbose=TRUE,
           ## We don't need the marginals:
           control.compute = list(return.marginals=FALSE),
-          #control.mode = control.mode,
+#control.mode = control.mode,
           ## We don't need to overoptimise:
           control.inla=list(tolerance=1e-4)
          )
+
+#  result2 =
+#     inla(formulac , data=data, family="poisson",
+#          control.predictor=list(A=ObservationMatrix,compute=TRUE),
+#          E=E_point_process,
+#          #control.mode = list(theta = init.mode, restart=TRUE),
+#          verbose=TRUE,
+#           ## We don't need the marginals:
+#           control.compute = list(return.marginals=FALSE),
+# #control.mode = control.mode,
+#           ## We don't need to overoptimise:
+#           control.inla=list(tolerance=1e-4)
+#          )
 
 
 }
@@ -268,12 +319,9 @@ if(plots.mesh) {
 		file="report/mesh.pdf",
 		width=5,
 		height=5/wh,
-		afterfn=function(p,k) {
-			lines(map,col="#0000ffff")
-			print(p)
-		},
 		mar=mar_tight,
 		main="",
+		sub="",
 		col="#00000020"
 	)
 
@@ -324,54 +372,45 @@ if(plots.obs) {
 					col = "#00000088", 
 					cex=0.5)
 			)
+trellis.par.set(theme = theme.novpadding)
 
-	# plot the points
-	
-pnel <- function() {
-    #panel.levelplot(...)
-    panel.lines(map,col="#0000ffff")
-}
+lw <- list(left.padding = list(x = 0, units = "inches"))
+lw$right.padding <- list(x = -0.1, units = "inches")
+lh <- list(bottom.padding = list(x = 0, units = "inches"))
+lh$top.padding <- list(x = -0.2, units = "inches")
 
-	myplot(y~x,
-		obs.y2010,
-		file="report/b2010.pdf",
-		plotfn=xyplot,
-		#panel=panel.lines(map,col="#0000ffff"),
-		width=5,
-		#height=5/wh,
-		afterfn=function(p,k) {
-					trellis.par.set(axis.line=list(col=NA))
-					print(p)
-		},
+lattice.options(layout.widths = lw, layout.heights = lh)
+	# points and window
+	myplot(mesh$segm$bnd, mesh$loc,
+		plotfn=lines,
+		width=4,
+		height=ly/lx*4,
+		xrange=range(mesh$loc[,1]),
+		yrange=range(mesh$loc[,2]),
 		mar=mar_tight,
-		main="",
-		col="#00000050",
-		pch=16,
-		aspect="iso",
-		settings=theme.novpadding
+		file="report/b2010.pdf",
+		xlab=NULL,ylab=NULL,
+		afterfn=function(p,k) {
+			points(loc,col="#00000080",pch=16)
+		}
 	)
 
+	pp2 <- ppp(cov.pdens[,"x"],cov.pdens[,"y"],poly=bnd.polygon,marks=log(cov.pdens[,"pdens"]))
+	contdens <- markmean(pp2,dimyx=c(400,400))
+	pl_b10 <- myplot(contdens,
+			col=jet.colors(512),
+			main="",
+			mar=mar_tight,
+			ribbon=FALSE,
+			file="report/pdens.pdf",
+			width=4,
+			height=ly/lx*4,
+			afterfn=function(p,k) {
+				lines(mesh$segm$bnd, mesh$loc)
+				print(p)
+			}
+		)
 
-	# plot the population density
-	pl_b10 <- myplot(kunnat,
-			sp.layout=list(rajj),
-				plotfn=spplot,
-				file="report/pdens.pdf",
-				width=3,
-				height=5.5,
-				afterfn=function(p,k) {
-					trellis.par.set(axis.line=list(col=NA))
-					print(p)
-				},
-				par.settings=theme.novpadding,
-				mar=mar_tight,
-				main="",
-				zcol="pdens_binned",
-				col.regions=oranges,
-				col="transparent",
-				colorkey=TRUE,
-				pretty=TRUE
-			)
-	}
+}
 }
 

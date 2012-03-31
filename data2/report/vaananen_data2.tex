@@ -111,8 +111,8 @@ other factors associated such as the amount of hunters in the area?
 \begin{figure}[htbp]
   \begin{adjustwidth}{-2in}{-2in}
 	  \centering
-	  \subfloat[Bear observations in 2010]{\label{fig:bear}\includegraphics[width=0.6\textwidth]{b2010}}
-	  \subfloat[Population density]{\label{fig:pdens}\includegraphics[width=0.6\textwidth]{pdens}}
+	  \subfloat[Bear observations in 2010]{\label{fig:bear}\includegraphics[width=0.5\textwidth]{b2010}}
+	  \subfloat[Population density]{\label{fig:pdens}\includegraphics[width=0.5\textwidth]{pdens}}
   \end{adjustwidth}
   \caption{Bear observations in 2010 and the population density of Finland}
   \label{fig:bw2010}
@@ -154,10 +154,10 @@ where $\Lambda(D)=\defint{D}{}{\lambda(\v{s})}{\v{s}}$. Then, given the number o
 the points are i.i.d so that the density is proportional to the intensity function. The joint distribution
 of the number of points and the points, i.e. the likelihood, is then given by
 \begin{align}
-	\PPdf{\mathcal{X}}{\lambda}&=\PPdf{N(\mathcal{X})=n}{\lambda}\prod_{i=1}^n\frac{\lambda(\v{x}_i)}{\Lambda(\Omega)}
+	\PPdf{\mathcal{X}}{\lambda}&=n!\PPdf{N(\mathcal{X})=n}{\lambda}\prod_{i=1}^n\frac{\lambda(\v{x}_i)}{\Lambda(\Omega)}
 	\nonumber\\
-	&=\frac{\Lambda(\Omega)^n}{n!}e^{-\Lambda(\Omega)}\prod_{i=1}^n\frac{\lambda(\v{x}_i)}{\Lambda(\Omega)} \nonumber\\
-	&\propto \exp\left( -\defint{\Omega}{}{\lambda(\v{s})}{\v{s}} \right)\prod_{i=1}^n \lambda(\v{x}_i)
+	&=n!\frac{\Lambda(\Omega)^n}{n!}e^{-\Lambda(\Omega)}\prod_{i=1}^n\frac{\lambda(\v{x}_i)}{\Lambda(\Omega)} \nonumber\\
+	&= \exp\left( -\defint{\Omega}{}{\lambda(\v{s})}{\v{s}} \right)\prod_{i=1}^n \lambda(\v{x}_i)
 	\label{eq:poisson_lh}
 \end{align}
 
@@ -289,34 +289,83 @@ Let
 \end{align}
 then
 \begin{align}
-	\PPdf{\v{y}}{\v{z}}\propto \exp\left(-\sum_{i=1}^{n+p}\tilde{\alpha}_i e^{z_i}\right)\prod_{i=1}^{n+p}
+	\PPdf{\v{y}}{\v{z}}\approx \exp\left(-\sum_{i=1}^{n+p}\tilde{\alpha}_i e^{z_i}\right)\prod_{i=1}^{n+p}
 	\left(\tilde{\alpha}_i e^{z_i}\right)^{y_i}
 	\label{eq:mesh_approx}
 \end{align}
+The approximation \eqref{eq:mesh_approx} now allows us to use the actual data points
+and the observation window discretization is only used for approximating the integral
+in \eqref{eq:poisson_lh} with a sum. The resulting likelihood approximation can still be considered
+a product of independent Poisson densities. 
 
-Putting all this together, the approximation to the conditional log-likelihood is given
-as
-\begin{align}
-	\log\Pdf{\v{y}}{Z}&\approx C-\sum_{i=1}^p w_i \exp\left(\v{z}^T\gv{\phi}(\hat{\v{s}}_i)\right)+
-	\sum_{k=1}^n \v{z}^T\gv{\phi}(\v{s}_k)\\
-	&=C-\v{w}^T\exp\left(\v{A}_1\v{z}\right)+\v{1}^T\v{A}_2\v{z},
-	\label{eq:likelihood_approximation}
-\end{align}
-where $[\v{A}_1]_{ij}=\phi_j(\hat{\v{s}}_i)$, $[\v{A}_2]_{kj}=\phi_j(\v{s}_k)$ and
-$C$ is an unimportant constant. 
+% Putting all this together, the approximation to the conditional log-likelihood is given
+% as
+% \begin{align}
+% 	\log\Pdf{\v{y}}{Z}&\approx C-\sum_{i=1}^p w_i \exp\left(\v{z}^T\gv{\phi}(\hat{\v{s}}_i)\right)+
+% 	\sum_{k=1}^n \v{z}^T\gv{\phi}(\v{s}_k)\\
+% 	&=C-\v{w}^T\exp\left(\v{A}_1\v{z}\right)+\v{1}^T\v{A}_2\v{z},
+% 	\label{eq:likelihood_approximation}
+% \end{align}
+% where $[\v{A}_1]_{ij}=\phi_j(\hat{\v{s}}_i)$, $[\v{A}_2]_{kj}=\phi_j(\v{s}_k)$ and
+% $C$ is an unimportant constant. 
 
-\placefig{mesh}{0.6}{The mesh over the observation window, which is the land area of Finland.}
 
 \section{Results}
-\cite{Illian2011,Martino2010}
 
+Unfortunately I wasn't really able to get the inference working with any covariate data
+in INLA. However without the covariates the inference
+worked just fine (after not working at all for a long time) and the posterior 
+mean of the intensity field is displayed in figure~\ref{fig:postint_b2010}.
+This of course doesn't tell us anything really interesting, since these
+are just observations and the real interest is in the animals themselves.
+The observation data is then only interesting when inspecting possible covariates,
+since in the end we would like to have a model for the spatially varying sampling
+effort. Probably the main results of this work were then in a somewhat more abstract
+and nonquantifiable level. Even though the path has been somewhat rocky,
+I still feel it was worthwhile to get to know INLA a little better, since
+it should be applicable in quite a variety of contexts. 
 
 
 \section{Conclusion}
+
+It was shown how the likelihood of log-Gaussian Cox processes can be approximated
+in a way that doesn't introduce binning of the data points. At the same time it is
+possible to use irregular grids or triangulated meshes, that allow for more accurate inference
+in observation winwdows where a a regular grid wouldn't fit well.
+
+Work on this dataset will most likely continue. When the problems related to incorporating
+covariate data with the SPDE models in INLA get solved, as they undoubtedly will, other
+covariates than the population density should also be included. Another interesting
+route is joint modeling of the point pattern and the covariates as explained in \cite{Illian2011}.
+And finally, since we also have observation data for other large carnivorous species than
+bear, it would be interesting to consider a marked point pattern with the species as mark
+and then modeling the marks and the pattern simultaneously as also explained in \cite{Illian2011}
+
+\placefig{mesh}{0.6}{The mesh over the observation window, which is the land area of Finland.}
+\placefig{postint_b2010}{0.9}{Posterior mean of the intensity field}
+
+
 \clearpage
 \printbibliography
 \clearpage
 \appendix
+
+\section{Time usage}
+\renewcommand{\arraystretch}{1.5}
+\begin{centering}
+\begin{tabular}{p{0.9\textwidth}c}
+\toprule
+Preprocessing the data and the observation window, i.e
+creating a proper polygon of the outline of the map & 30h\\
+Learning INLA & 10h\\
+Fighting with INLA & 30-50h\\
+Learning about Poisson processes, LGCP's and maximum likelihood estimation in
+spatial point processes & 20h\\
+Writing the report and the presentation & 10h\\
+\bottomrule
+\end{tabular}
+\end{centering}
+
 \section{R-code}
 \lstinputlisting{../script.R}
 \lstinputlisting{../loadData.R}

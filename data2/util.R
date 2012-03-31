@@ -18,9 +18,13 @@ addAlpha <- function(c,op) {
 
 mar_lab <- c(2.5,2.5,1.5,1.0)
 mar_tight <- c(0.1,0.1,0.1,0.1)
-myplot <- function(...,plotfn=plot,width=6,height=6,mar=mar_lab,file=FALSE,nodevoff=FALSE,afterfn=NULL,k=NULL) {
+myplot <- function(...,xrange=FALSE,yrange=FALSE,plotfn=plot,width=6,height=6,mar=mar_lab,file=FALSE,nodevoff=FALSE,afterfn=NULL,k=NULL) {
 	if(displayFigs) {
-		quartz()
+		quartz(width=width,height=height)
+		if(xrange && yrange) {
+			plot.new()
+			plot.window(xlim=xrange, ylim=yrange, "")
+		}
 		par(mar=mar)
 		p <- plotfn(...)
 		if(is.function(afterfn)) {
@@ -32,6 +36,8 @@ myplot <- function(...,plotfn=plot,width=6,height=6,mar=mar_lab,file=FALSE,nodev
 	}
 	if(exportFigs && file != FALSE) {
 		pdf(file=file,width=width,height=height)
+		if(xrange && yrange)
+			plot.window(xlim=xrange, ylim=yrange, "")
 		par(mar=mar)
 		p <- plotfn(...)
 		if(is.function(afterfn)) {
@@ -50,6 +56,10 @@ listplot <- function(k,v,file=FALSE,formula=FALSE,main="",...) {
 		p <- myplot(v,file=sprintf(file,k),main=sprintf(main,k),k=k,...)
 	}
 	return(p)
+}
+
+findvalue <- function (x,y,im) {
+
 }
 
 

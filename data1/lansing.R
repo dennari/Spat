@@ -2,12 +2,12 @@
 
 exportFigs <- 1
 displayFigs <- 0
-interaction <- 0
-speciesinteraction <- 0
-intensity <- 0
+interaction <- 1
+speciesinteraction <- 1
+intensity <- 1
 ppcf <- 1
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
-nsim <- 99
+nsim <- 1999
 
 require("spatstat");
 require("RColorBrewer")
@@ -59,10 +59,10 @@ listplot <- function(k,v,file=FALSE,formula=FALSE,main="",...) {
 	return(p)
 }
 
+nlansing <- lansingm[lansingm$marks!="misc"];
 sigma <- 2.5*bw.relrisk(nlansing);
 
 
-nlansing <- lansingm[lansingm$marks!="misc"];
 levels(nlansing$marks) <- c("oak","hickory","maple",NA,"oak","oak")
 
 hm <- lansingm[lansingm$marks=="maple" | lansingm$marks=="hickory"];
