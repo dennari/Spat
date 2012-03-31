@@ -1,16 +1,17 @@
 # Lansing wood data analysis
 options(error=dump.frames)
-exportFigs <- 1
+exportFigs <- 0
 displayFigs <- 0
 interaction <- 1
 speciesinteraction <- 1
-intensity <- 1
+intensity <- 0
 ppcf <- 1
 dimyx <- ifelse(exportFigs,c(500,500),c(100,100))
 nsim <- 3
 
 require("spatstat");
 require("RColorBrewer")
+source("envs.typeIerror.r",local=T)
 data(lansing)
 lansingm <- lansing
 
@@ -58,6 +59,17 @@ listplot <- function(k,v,file=FALSE,formula=FALSE,main="",...) {
 	}
 	return(p)
 }
+Type1Err <- function(data,names=FALSE) {
+	if(!is.list(data)) {
+		data <- list(data)
+	}
+	d <- lapply(data,envs.typeIerror)
+	if(names != FALSE) {
+		names(d) <- names
+	}
+	return(d)
+}
+
 
 nlansing <- lansingm[lansingm$marks!="misc"];
 sigma <- 2.5*bw.relrisk(nlansing);
@@ -127,7 +139,8 @@ print("INTERACTION")
 			correction="Ripley",
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500)
 		),SIMPLIFY=FALSE)
-	
+	LsErr <-lapply(Ls,envs.typeIerror)
+
 	dens <- density(split(nlansing),
 		sigma=sigma)
 	
@@ -145,7 +158,7 @@ print("INTERACTION")
 			sigma=sigma,
 			r=seq.int(range[1],range[2],(range[2]-range[1])/500)
 		),SIMPLIFY=FALSE)
-	
+	LsiErr <-lapply(Lsi,envs.typeIerror)
 
 	nms <- names(c(Lssi,Lss))
 
@@ -195,9 +208,9 @@ print("SPECIESINTERACTION")
 			nsim=nsim,savefuns=TRUE,
 			correction="Ripley",
 			savepatterns=TRUE)	
-			
+	Ls1Err <-envs.typeIerror(Ls1)		
 
-	Ls <- mapply(
+	Ls2 <- mapply(
 			envelope,
 			rep(list(nlansing),2),
 			rep(list(Lcross),2),
@@ -208,7 +221,9 @@ print("SPECIESINTERACTION")
 				nsim=nsim,savefuns=TRUE,
 				simulate=Ls1
 			),SIMPLIFY=FALSE)	
-	csrd <- c(list(Ls1),Ls)
+	Ls2Err <-lapply(Ls2,envs.typeIerror)
+
+	csrd <- c(list(Ls1),Ls2)
 	
 	csrp <- mapply(listplot,fns,csrd,
 		MoreArgs=list(
@@ -234,7 +249,7 @@ print("IOC")
 		},i,j,USE.NAMES=FALSE)
 	
 	
-	Ls1 <- envelope(
+	Ls3 <- envelope(
 			nlansing,
 			Lcross,
 			i=i[1],
@@ -243,21 +258,23 @@ print("IOC")
 			nsim=nsim,savefuns=TRUE,
 			correction="Ripley",
 			simulate = expression(rshift(nlansing)),
-			savepatterns=TRUE)	
+			savepatterns=TRUE)
+		Ls3Err <-envs.typeIerror(Ls3)	
 
-	Ls <- mapply(
+	Ls4 <- mapply(
 			envelope,
 			rep(list(nlansing),2),
 			rep(list(Lcross),2),
 			i=i[2:3],
 			j=j[2:3],
 			MoreArgs=list(
-				simulate = Ls1,
+				simulate = Ls3,
 				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
 				nsim=nsim,savefuns=TRUE
-			),SIMPLIFY=FALSE)	
+			),SIMPLIFY=FALSE)
+	Ls4Err <-lapply(Ls4,envs.typeIerror)	
 	
-	iocd <- c(list(Ls1),Ls)
+	iocd <- c(list(Ls3),Ls4)
 
 	iocp <- mapply(listplot,fns,iocd,
 		MoreArgs=list(
@@ -282,7 +299,7 @@ print("RANDOMLABELING")
 		return(eval.fv(Lidot - L))
 	}
 
-	Ls1 <- envelope(
+	Ls5 <- envelope(
 			nlansing,
 			Ldif,
 			i="hickory",
@@ -290,20 +307,22 @@ print("RANDOMLABELING")
 			nsim=nsim,savefuns=TRUE,
 			correction="Ripley",
 			simulate = expression(rlabel(nlansing)),
-			savepatterns=TRUE)	
+			savepatterns=TRUE)
+	Ls5Err <-envs.typeIerror(Ls5)	
 
-	Ls <- mapply(
+	Ls6 <- mapply(
 			envelope,
 			rep(list(nlansing),2),
 			rep(list(Ldif),2),
 			i=c("oak","maple"),
 			MoreArgs=list(
 				r=seq.int(range[1],range[2],(range[2]-range[1])/500),
-				simulate = Ls1,
+				simulate = Ls5,
 				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)
+	Ls6Err <-lapply(Ls6,envs.typeIerror)
 	
-	rld <- c(list(Ls1),Ls)	
+	rld <- c(list(Ls5),Ls6)	
 	
 	rlp <- mapply(listplot,fns,rld,
 		MoreArgs=list(
@@ -353,7 +372,7 @@ print("PPCF")
 				bw=bw,
 				nsim=nsim,savefuns=TRUE
 			),SIMPLIFY=FALSE)
-
+	ppcfdiErr <-lapply(ppcfdi,envs.typeIerror)
 
 	v <- mapply(listplot,fns[1:3],ppcfdi[1:3],
 		MoreArgs=list(
